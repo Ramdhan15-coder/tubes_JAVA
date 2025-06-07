@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title ?: 'Detail Pesanan'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 20px; }
+        .container-custom { max-width: 1100px; margin: auto; }
+        .order-view-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .card-header-custom {
+            padding: 1rem 1.5rem;
+            background-color: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header-custom h2 { margin: 0; font-size: 1.5em; color: #2c3e50; }
+        .card-body-custom { padding: 1.5rem; }
+        .info-section h5 { font-weight: 600; color: #495057; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .info-section p { margin-bottom: 8px; }
+        .info-section p strong { min-width: 150px; display: inline-block; }
+        .payment-proof-img { max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; }
+        .items-table th { font-size: 0.9em; text-transform: uppercase; }
+        .items-table td { font-size: 0.9em; vertical-align: middle; }
+        .item-image { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .status-update-form { background-color: #f0f8ff; padding: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container-custom">
+        <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+        </div>
+    <div class="container-custom">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 th:text="${title ?: 'Detail Pesanan'}"></h1>
+            <a th:href="@{/admin/orders}" class="btn btn-secondary">&laquo; Kembali ke Daftar Pesanan</a>
+        </div>
+
+        <div th:if="${order != null}" class="order-view-card">
+            <div class="card-header-custom">
+                <div>
+                    <strong>Pelanggan:</strong> <span th:text="${order.user?.username ?: 'N/A'}"></span><br>
+                    <strong>Email:</strong> <span th:text="${order.user?.email ?: 'N/A'}"></span>
+                </div>
+                <div>
+                    <strong>Tanggal Pesan:</strong> <span th:text="${#dates.format(order.orderDate, 'dd MMM yyyy, HH:mm')}"></span><br>
+                    <strong>Total:</strong> <span class="fw-bold text-danger fs-5" th:text="${#numbers.formatCurrency(order.totalAmount)}"></span>
+                </div>
+            </div>
+
+            <div class="card-body-custom">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="info-section mb-4">
+                            <h5>Detail Pengiriman</h5>
+                            <p><strong>Status Saat Ini:</strong>
+                                <span class="badge rounded-pill fs-6"
+                                      th:classappend="${#strings.contains(order.status, 'PENDING') or #strings.contains(order.status, 'WAITING') ? 'bg-warning text-dark' : (#strings.contains(order.status, 'CANCELED') ? 'bg-danger' : 'bg-success')}"
+                                      th:text="${#strings.replace(order.status, '_', ' ')}">
+                                </span>
+                            </p>
+                            <div style="white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 4px;" th:text="${order.shippingAddress}">Alamat Pengiriman</div>
+                        </div>
+
+                        <div class="info-section mb-4">
+                            <h5>Informasi Pembayaran</h5>
+                            <p><strong>Metode:</strong> <span th:text="${order.paymentMethodDetails ?: 'Belum diisi'}"></span></p>
+                            <p><strong>Bukti Pembayaran:</strong></p>
+                            <div th:if="${order.paymentProofUrl != null}">
+                                <a th:href="@{${order.paymentProofUrl}}" target="_blank">
+                                    <img th:src="@{${order.paymentProofUrl}}" alt="Bukti Pembayaran" class="payment-proof-img"/>
+                                </a>
+                            </div>
+                            <div th:unless="${order.paymentProofUrl != null}">
+                                <p class="text-muted"><em>Belum ada bukti pembayaran yang diupload.</em></p>
+                            </div>
+                        </div>
+
+                        <div class="info-section status-update-form">
+                            <h5>Update Status Pesanan</h5>
+                            <form th:action="@{/admin/orders/update-status/{id}(id=${order.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                                <div class="input-group">
+                                    <select name="status" class="form-select">
+                                        <option value="">-- Pilih Status Baru --</option>
+                                        <option th:each="statusOpt : ${statusList}"
+                                                th:value="${statusOpt}"
+                                                th:text="${#strings.replace(statusOpt, '_', ' ')}"
+                                                th:selected="${statusOpt == order.status}">
+                                            STATUS
+                                        </option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="info-section mt-4 text-center">
+                            <h5>Aksi Berbahaya</h5>
+                            <form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('PERINGATAN: Aksi ini akan menghapus pesanan ini secara permanen beserta semua item dan data pembayaran terkait. Anda yakin ingin melanjutkan?');">
+                                    <i class="fas fa-trash-alt"></i> Hapus Pesanan Ini
+                                </button>
+                            </form>
+                        </div>
+
+                    <div class="col-lg-7">
+                        <div class="info-section">
+                            <h5>Item yang Dipesan</h5>
+                            <div class="table-responsive">
+                                <table class="table items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Produk</th>
+                                            <th>Qty</th>
+                                            <th>Harga Saat Beli</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${order.orderItems}">
+                                            <td>
+                                                <img th:src="@{${item.product?.imageUrl ?: '/images/placeholder_default.jpg'}}" class="item-image me-2 align-middle"/>
+                                                <span th:text="${item.product?.name ?: 'Produk Dihapus'}"></span>
+                                            </td>
+                                            <td th:text="${item.quantity}"></td>
+                                            <td th:text="${#numbers.formatCurrency(item.priceAtPurchase)}"></td>
+                                            <td th:text="${#numbers.formatCurrency(item.priceAtPurchase.multiply(new java.math.BigDecimal(item.quantity)))}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div th:if="${order.notes != null and !#strings.isEmpty(order.notes)}" class="mt-3">
+                                <h5>Catatan dari Pembeli:</h5>
+                                <p class="fst-italic" th:text="${order.notes}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${order == null}" class="alert alert-danger text-center mt-5">
+            Detail pesanan tidak dapat dimuat atau tidak ditemukan.
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

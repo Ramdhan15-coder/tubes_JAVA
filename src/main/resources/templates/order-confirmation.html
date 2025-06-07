@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'Konfirmasi Pesanan'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { 
+            padding-top: 70px; /* Tinggi navbar fixed-top */
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand { font-weight: bold; }
+        .confirmation-container {
+            max-width: 800px; /* Lebarkan sedikit untuk detail */
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .success-icon {
+            font-size: 3.5em; /* Sedikit lebih kecil dari contoh EJS */
+            color: #198754; /* Warna hijau Bootstrap success */
+            margin-bottom: 15px;
+            display: block; /* Agar bisa di-center */
+            text-align: center;
+        }
+        .confirmation-container h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .order-details-summary p {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        .order-details-summary strong {
+            color: #0d6efd; /* Warna biru Bootstrap primary */
+        }
+        .payment-instructions, .upload-form-section, .payment-proof-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #eef2f7; /* Warna latar yang lebih lembut */
+            border-radius: 5px;
+            border: 1px solid #d1d9e0;
+        }
+        .payment-instructions h5, .upload-form-section h5, .payment-proof-section h5 {
+            color: #343a40; /* Warna gelap untuk subjudul */
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ced4da;
+            padding-bottom: 10px;
+        }
+        .payment-instructions strong.bank-info {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        .status-badge {
+            font-size: 1em;
+            padding: .5em .75em;
+        }
+        .uploaded-proof-img {
+            max-width: 100%; /* Responsif */
+            max-height: 400px; /* Batas tinggi maksimal */
+            height: auto;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+            display: block; /* Agar bisa di-center jika parent-nya text-align center */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .action-buttons-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        .action-buttons-footer .btn {
+            margin: 0 10px;
+        }
+        .alert-container { position: sticky; top: 56px; z-index: 1050; width: 100%; }
+        .alert { margin-bottom: 0; border-radius: 0;}
+        .footer-custom { background-color: #e9ecef; padding: 20px 0; text-align: center; margin-top: 40px; font-size: 0.9em; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/dashboard-user}">Toko Sepatu Keren</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item" th:if="${#authentication.principal != null and #authentication.principal != 'anonymousUser'}">
+                    <span class="navbar-text me-3">Selamat datang, <strong sec:authentication="principal.username">Pengguna</strong>!</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/cart}"> <i class="fas fa-shopping-cart"></i> Keranjang
+                        <span th:if="${cartItemCount != null && cartItemCount > 0}" class="badge bg-danger rounded-pill ms-1" th:text="${cartItemCount}">0</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/order/history}">Riwayat Pesanan</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                        <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);">Logout</button>
+                    </form>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div class="alert-container">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div th:if="${order != null}" class="confirmation-container">
+            <span class="success-icon"><i class="fas fa-check-circle"></i></span> <h1 th:text="${title ?: 'Pesanan Dikonfirmasi!'}">Pesanan Dikonfirmasi!</h1>
+
+            <div class="order-details-summary">
+                <p>Nomor Pesanan Anda: <strong th:text="'#' + ${order.id}">#ORDERID</strong></p>
+                <p>Total Tagihan: <strong style="color: #dc3545;" th:text="${#numbers.formatCurrency(order.totalAmount)}">Rp 0.00</strong></p>
+            </div>
+
+            <div class="payment-instructions">
+                <h5>Instruksi Pembayaran:</h5>
+                <p>Silakan lakukan pembayaran sejumlah total tagihan ke salah satu rekening berikut:</p>
+                <p>
+                    <strong class="bank-info">Bank BCA:</strong> 123-456-7890 a/n Toko Sepatu Keren Sejahtera<br>
+                    <strong class="bank-info">Bank Mandiri:</strong> 098-765-4321 a/n PT Sepatu Kita Jaya Abadi
+                </p>
+                <p>Setelah melakukan pembayaran, mohon unggah bukti transfer Anda di bawah ini.</p>
+                <p>Status Pesanan Saat Ini:
+                    <span class="badge rounded-pill"
+                          th:classappend="${order.status == 'PENDING_PAYMENT' ? 'bg-warning text-dark' : (order.status == 'PAID' or order.status == 'WAITING_CONFIRMATION' ? 'bg-info text-dark' : (order.status == 'SHIPPED' ? 'bg-primary' : (order.status == 'DELIVERED' ? 'bg-success' : 'bg-secondary')))}"
+                          th:text="${#strings.replace(order.status, '_', ' ').toUpperCase()}">STATUS</span>
+                </p>
+            </div>
+
+            <div th:if="${order.status == 'PENDING_PAYMENT' and order.paymentProofUrl == null}" class="upload-form-section">
+                <h5>Upload Bukti Pembayaran Anda</h5>
+                <form action="#" th:action="@{/order/{orderId}/upload-proof(orderId=${order.id})}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                    <div class="mb-3">
+                        <label for="paymentProofFile" class="form-label">Pilih file gambar (JPG, PNG, maks 2MB):</label>
+                        <input type="file" class="form-control" id="paymentProofFile" name="paymentProofFile" accept="image/jpeg, image/png" required>
+                    </div>
+                    <button type="submit" class="btn btn-info">Upload Bukti</button>
+                </form>
+            </div>
+
+            <div th:if="${order.paymentProofUrl != null}" class="payment-proof-section">
+                <h5>Bukti Pembayaran Anda</h5>
+                <p>Terima kasih! Bukti pembayaran Anda telah diterima dan akan segera kami verifikasi.</p>
+                <img th:src="@{${order.paymentProofUrl}}" th:alt="'Bukti Bayar Order #' + ${order.id}" class="uploaded-proof-img">
+            </div>
+
+            <div th:if="${order.status != 'PENDING_PAYMENT' and order.paymentProofUrl == null and order.status != 'CANCELED'}" class="payment-proof-section">
+                 <p>Status pesanan Anda saat ini adalah <strong th:text="${#strings.replace(order.status, '_', ' ').toUpperCase()}"></strong>.</p>
+                 <p><em>Tidak perlu upload bukti pembayaran untuk status ini atau bukti belum tersedia.</em></p>
+            </div>
+
+
+            <div class="action-buttons-footer">
+                <a th:href="@{/dashboard-user}" class="btn btn-primary">Lanjutkan Belanja</a>
+                <a th:href="@{/order/history}" class="btn btn-outline-secondary">Lihat Riwayat Pesanan</a> </div>
+        </div>
+        <div th:if="${order == null}" class="alert alert-danger text-center mt-5">
+            Detail pesanan tidak dapat dimuat atau tidak ditemukan.
+        </div>
+    </div>
+
+    <footer class="footer-custom">
+        <div class="container text-center">
+            <small>&copy; 2025 Toko Sepatu Keren Ramdhanr. All Rights Reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

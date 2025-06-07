@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <title>Kelola Semua Reviews</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 20px; background-color: #f8f9fa; }
+        .container-custom { max-width: 1200px; margin: auto; padding: 20px; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .action-bar { margin-bottom: 20px; display: flex; justify-content: flex-start; align-items: center;}
+        .action-bar a {
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .btn-back { background-color: #6c757d; color: white; }
+        .btn-back:hover { background-color: #5a6268; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background-color: white; }
+        th, td { border: 1px solid #dfe3e8; padding: 10px 12px; text-align: left; vertical-align: middle; font-size: 0.9em;}
+        th { background-color: #e9ecef; color: #495057; font-weight: 600; text-transform: uppercase;}
+        tr:nth-child(even) { background-color: #fdfdfd; }
+        tr:hover { background-color: #f1f1f1; }
+        .actions-column a, .actions-column button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 0.85em;
+            border-radius: 4px;
+        }
+        .btn-edit { background-color: #ffc107; color: #212529; border:none; }
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-delete { background-color: #dc3545; color: white; border:none; }
+        .btn-delete:hover { background-color: #c82333; }
+        .no-reviews { text-align: center; color: #6c757d; padding: 30px; font-size: 1.1em; background-color: #fff; border-radius: 5px; }
+        .rating-stars .fa-star { color: #ffc107; }
+        .comment-snippet {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid transparent; }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container-custom">
+        <h1>Kelola Semua Reviews</h1>
+
+        <div class="action-bar">
+            <a th:href="@{/dashboard-admin}" class="btn-back">Kembali ke Dashboard Admin</a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div th:if="${reviews == null or reviews.isEmpty()}">
+            <p class="no-reviews">Belum ada review yang masuk.</p>
+        </div>
+
+        <table th:unless="${reviews == null or reviews.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID Review</th>
+                    <th>Produk</th>
+                    <th>Pengguna</th>
+                    <th>Rating</th>
+                    <th>Komentar (Cuplikan)</th>
+                    <th>Tanggal Review</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="review : ${reviews}">
+                    <td th:text="${review.reviewId}">1</td>
+                    <td th:text="${review.product != null ? review.product.name : 'Produk Dihapus'}">Nama Produk</td>
+                    <td th:text="${review.user != null ? review.user.username : 'User Dihapus'}">Username Pengguna</td>
+                    <td class="rating-stars">
+                        <span th:if="${review.rating != null}">
+                            <span th:each="i : ${#numbers.sequence(1, review.rating)}"><i class="fas fa-star"></i></span>
+                            <span th:each="i : ${#numbers.sequence(1, 5 - review.rating)}"><i class="far fa-star"></i></span>
+                            (<span th:text="${review.rating}">0</span>/5)
+                        </span>
+                        <span th:unless="${review.rating != null}">N/A</span>
+                    </td>
+                    <td>
+                        <div class="comment-snippet" th:title="${review.comment}" th:text="${review.comment != null ? #strings.abbreviate(review.comment, 100) : ''}">
+                            Komentar singkat...
+                        </div>
+                    </td>
+                    <td th:text="${review.reviewDate != null ? #dates.format(review.reviewDate, 'dd MMM yyyy, HH:mm') : 'N/A'}">Tanggal</td>
+                    <td class="actions-column">
+                        <a th:href="@{/admin/reviews/edit/{id}(id=${review.reviewId})}" class="btn btn-sm btn-edit">Edit</a>
+                        <a th:href="@{/admin/reviews/delete/{id}(id=${review.reviewId})}"
+                           onclick="return confirm('Anda yakin ingin menghapus review ini?');"
+                           class="btn btn-sm btn-delete">Hapus</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Produk Baru</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
+        .container { max-width: 700px; margin: auto; padding: 25px; border: 1px solid #d1d9e0; border-radius: 8px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #495057; }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="url"], /* Untuk imageUrl bisa juga type="text" */
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .error-message-global { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 0.95em; }
+        .error-message-field { color: red; font-size: 0.85em; margin-top: 4px; } /* Untuk error per field nanti */
+        .button-bar { margin-top: 25px; text-align: right; padding-top: 15px; border-top: 1px solid #e9ecef;}
+        .button-bar button, .button-bar a {
+            padding: 10px 22px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .button-bar button:hover, .button-bar a:hover { transform: translateY(-1px); }
+        .btn-save { background-color: #28a745; color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-cancel { background-color: #6c757d; color: white; display: inline-block; }
+        .btn-cancel:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Form Tambah Produk Baru</h1>
+
+        <div th:if="${error}" class="error-message-global">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form th:action="@{/admin/products/save}" th:object="${adminProductCreateDto}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="form-group">
+                <label for="name">Nama Produk:</label>
+                <input type="text" id="name" th:field="*{name}" required />
+                </div>
+
+            <div class="form-group">
+                <label for="description">Deskripsi:</label>
+                <textarea id="description" th:field="*{description}" rows="4"></textarea>
+                </div>
+
+            <div class="form-group">
+                <label for="price">Harga (Rp):</label>
+                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required />
+                </div>
+
+            <div class="form-group">
+                <label for="stock">Stok:</label>
+                <input type="number" id="stock" th:field="*{stock}" min="0" required />
+                </div>
+
+            <div class="form-group">
+                <label for="categoryId">Kategori:</label>
+                <select id="categoryId" th:field="*{categoryId}" required>
+                    <option value="">--- Pilih Kategori ---</option>
+                    <option th:each="categoryOpt : ${availableCategories}"
+                            th:value="${categoryOpt.id}"
+                            th:text="${categoryOpt.name}">Nama Kategori</option>
+                </select>
+                </div>
+
+            <div class="form-group">
+                <label for="imageUrl">URL Gambar Produk:</label>
+                <input type="text" id="imageUrl" th:field="*{imageUrl}" placeholder="/images/namafilegambar.jpg" />
+                <small>Contoh: /images/sepatu-keren.jpg (pastikan gambar ada di static/images)</small>
+                </div>
+
+            <div class="button-bar">
+                <a th:href="@{/admin/products}" class="btn-cancel">Batal</a>
+                <button type="submit" class="btn-save">Simpan Produk</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

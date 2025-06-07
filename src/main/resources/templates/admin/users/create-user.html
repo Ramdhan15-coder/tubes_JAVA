@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah User Baru</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;}
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Untuk padding tidak menambah width */
+        }
+        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }
+        .button-bar { margin-top: 20px; text-align: right; }
+        .button-bar button, .button-bar a {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-save { background-color: #28a745; color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-cancel { background-color: #6c757d; color: white; display: inline-block; } /* display inline-block untuk <a> */
+        .btn-cancel:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Form Tambah User Baru</h1>
+
+        <div th:if="${error}" class="error-message" style="border: 1px solid red; padding: 10px; margin-bottom:15px;">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form th:action="@{/admin/users/save}" th:object="${adminCreateUserDto}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" th:field="*{username}" required />
+                </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}" required />
+                </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" th:field="*{password}" required />
+                </div>
+
+            <div class="form-group">
+                <label for="roleId">Role:</label>
+                <select id="roleId" th:field="*{roleId}" required>
+                    <option value="">Pilih Role...</option>
+                    <option th:each="roleOpt : ${availableRoles}"
+                            th:value="${roleOpt.id}"
+                            th:text="${roleOpt.name}">USER</option>
+                </select>
+                </div>
+
+            <div class="button-bar">
+                <a th:href="@{/admin/users}" class="btn-cancel">Batal</a>
+                <button type="submit" class="btn-save">Simpan User</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
