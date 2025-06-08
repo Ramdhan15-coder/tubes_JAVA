@@ -33,4 +33,5 @@ public class Transaction {
     @Temporal(TemporalType.DATE) // Menegaskan bahwa ini adalah tipe DATE
     private LocalDate date;
 
+    //ini sebenernya gak kepake sih
 }

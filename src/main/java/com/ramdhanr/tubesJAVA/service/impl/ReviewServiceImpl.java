@@ -1,6 +1,6 @@
 package com.ramdhanr.tubesJAVA.service.impl;
 
-import com.ramdhanr.tubesJAVA.dto.AdminReviewUpdateDto; // <-- IMPORT DTO UPDATE REVIEW
+import com.ramdhanr.tubesJAVA.dto.AdminReviewUpdateDto; 
 import com.ramdhanr.tubesJAVA.dto.ReviewDto;
 import com.ramdhanr.tubesJAVA.model.Product;
 import com.ramdhanr.tubesJAVA.model.Review;
@@ -13,20 +13,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional; // Pastikan import Optional ada
+import java.util.Optional; 
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ProductService productService; // Tetap dibutuhkan untuk saveReview
+    private final ProductService productService; 
 
     public ReviewServiceImpl(ReviewRepository reviewRepository, ProductService productService) {
         this.reviewRepository = reviewRepository;
         this.productService = productService;
     }
 
-    // ... (metode getReviewsByProductId, saveReview, getAllReviews, deleteReviewById tetap sama) ...
     @Override
     @Transactional(readOnly = true)
     public List<Review> getReviewsByProductId(Integer productId) {
@@ -43,7 +42,6 @@ public class ReviewServiceImpl implements ReviewService {
         newReview.setUser(currentUser);
         newReview.setRating(reviewDto.rating());
         newReview.setComment(reviewDto.comment());
-        // reviewDate, createdAt, updatedAt akan diisi otomatis oleh anotasi di Entitas Review
         return reviewRepository.save(newReview);
     }
 
@@ -66,14 +64,14 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    // IMPLEMENTASI METODE BARU UNTUK MENCARI REVIEW BERDASARKAN ID
+    // IMPLEMENTASI METODE UNTUK MENCARI REVIEW BERDASARKAN ID
     @Override
     @Transactional(readOnly = true)
     public Optional<Review> findReviewById(Integer reviewId) {
         return reviewRepository.findById(reviewId);
     }
 
-    // IMPLEMENTASI METODE BARU UNTUK UPDATE REVIEW OLEH ADMIN
+    // IMPLEMENTASI METODE UNTUK UPDATE REVIEW OLEH ADMIN
     @Override
     @Transactional // Operasi ini mengubah data
     public Review updateReviewByAdmin(Integer reviewId, AdminReviewUpdateDto reviewUpdateDto) {
@@ -90,4 +88,13 @@ public class ReviewServiceImpl implements ReviewService {
         // 3. Simpan perubahan ke database
         return reviewRepository.save(reviewToUpdate);
     }
+
+    @Override
+@Transactional(readOnly = true)
+public List<Review> searchReviews(String keyword) {
+    if (keyword == null || keyword.trim().isEmpty()) {
+        return reviewRepository.findAllByOrderByReviewDateDesc(); // Jika keyword kosong, kembalikan semua review
+    }
+    return reviewRepository.searchByProductOrUser(keyword);
+}
 }

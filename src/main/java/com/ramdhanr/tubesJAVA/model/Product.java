@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp; // <-- IMPORT INI
-import org.hibernate.annotations.UpdateTimestamp;   // <-- IMPORT INI
+import org.hibernate.annotations.CreationTimestamp; 
+import org.hibernate.annotations.UpdateTimestamp;   
 
 import java.math.BigDecimal;
-import java.sql.Timestamp; // Kita pakai java.sql.Timestamp sesuai DDL awal
+import java.sql.Timestamp; 
 
 @Data
 @NoArgsConstructor
@@ -41,14 +41,14 @@ public class Product {
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    // MODIFIKASI DI SINI untuk createdAt dan updatedAt
+    //  untuk createdAt dan updatedAt
     @CreationTimestamp // Akan diisi otomatis oleh Hibernate saat entitas pertama kali disimpan
-    @Column(name = "created_at", nullable = false, updatable = false) // nullable=false karena pasti diisi; updatable=false karena created_at tidak berubah
-    @Temporal(TemporalType.TIMESTAMP) // Menentukan tipe data di database adalah TIMESTAMP
+    @Column(name = "created_at", nullable = false, updatable = false) 
+    @Temporal(TemporalType.TIMESTAMP) 
     private Timestamp createdAt;
 
     @UpdateTimestamp // Akan diisi otomatis oleh Hibernate saat entitas disimpan atau diupdate
-    @Column(name = "updated_at", nullable = false) // nullable=false karena pasti diisi
+    @Column(name = "updated_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp updatedAt;
     

@@ -2,8 +2,6 @@ package com.ramdhanr.tubesJAVA.dto;
 
 import java.math.BigDecimal;
 
-// Menggunakan record untuk DTO (Java 17 mendukung ini)
-// Anotasi validasi bisa ditambahkan nanti jika perlu (@NotBlank, @NotNull, @Min, dll.)
 public record AdminProductCreateDto(
         String name,
         String description,

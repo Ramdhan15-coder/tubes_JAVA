@@ -6,188 +6,377 @@
     <title th:text="${title ?: 'Konfirmasi Pesanan'}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            padding-top: 70px; /* Tinggi navbar fixed-top */
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Definisi variabel CSS untuk konsistensi */
+        :root {
+            --primary-color: #007bff; /* Biru utama Bootstrap */
+            --secondary-color: #6c757d; /* Warna abu-abu teks */
+            --accent-color: #28a745; /* Hijau untuk tombol sukses/aksi */
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            --card-hover-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
-        .navbar-brand { font-weight: bold; }
+
+        body {
+            padding-top: 70px; /* Tinggi navbar fixed-top */
+            background-color: var(--light-bg);
+            font-family: 'Open Sans', sans-serif; /* Konsisten dengan halaman lain */
+        }
+
+        /* Styling Navbar agar konsisten */
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: #fff !important;
+        }
+        .nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+        .navbar-text strong {
+            color: #fff;
+        }
+        /* Akhir Styling Navbar */
+
         .confirmation-container {
-            max-width: 800px; /* Lebarkan sedikit untuk detail */
+            max-width: 800px;
             margin: 30px auto;
-            padding: 30px;
+            padding: 35px; /* Padding lebih besar */
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 12px; /* Sudut lebih melengkung */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12); /* Bayangan lebih jelas */
+            text-align: center; /* Konten utama di tengah */
         }
         .success-icon {
-            font-size: 3.5em; /* Sedikit lebih kecil dari contoh EJS */
-            color: #198754; /* Warna hijau Bootstrap success */
-            margin-bottom: 15px;
-            display: block; /* Agar bisa di-center */
+            font-size: 4.5em; /* Ukuran ikon sukses lebih besar */
+            color: var(--accent-color); /* Warna hijau dari variabel */
+            margin-bottom: 20px;
+            display: block;
             text-align: center;
         }
         .confirmation-container h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+        }
+        .order-details-summary {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
         }
         .order-details-summary p {
-            font-size: 1.1em;
-            margin-bottom: 8px;
+            font-size: 1.15em; /* Ukuran teks detail lebih besar */
+            margin-bottom: 10px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Untuk menengahkan ikon dan teks */
+        }
+        .order-details-summary p i {
+            margin-right: 10px;
+            color: var(--secondary-color);
         }
         .order-details-summary strong {
-            color: #0d6efd; /* Warna biru Bootstrap primary */
+            color: var(--primary-color); /* Warna biru dari variabel */
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
         }
+        .order-details-summary .total-amount-strong {
+            color: #dc3545; /* Warna merah untuk total tagihan */
+            font-size: 1.1em; /* Total tagihan sedikit lebih besar */
+        }
+
         .payment-instructions, .upload-form-section, .payment-proof-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #eef2f7; /* Warna latar yang lebih lembut */
-            border-radius: 5px;
-            border: 1px solid #d1d9e0;
+            margin-top: 35px; /* Jarak antar seksi */
+            padding: 25px; /* Padding lebih besar */
+            background-color: #e9f5ff; /* Latar biru muda untuk instruksi */
+            border-radius: 10px; /* Sudut lebih melengkung */
+            border: 1px solid #cce5ff;
+            text-align: left; /* Konten di dalamnya rata kiri */
+            color: #004085;
         }
         .payment-instructions h5, .upload-form-section h5, .payment-proof-section h5 {
-            color: #343a40; /* Warna gelap untuk subjudul */
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ced4da;
-            padding-bottom: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #212529; /* Warna gelap untuk subjudul */
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #a2d2ff; /* Garis bawah yang lebih cocok */
+            display: flex;
+            align-items: center;
+        }
+        .payment-instructions h5 i, .upload-form-section h5 i, .payment-proof-section h5 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        .payment-instructions p {
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
         .payment-instructions strong.bank-info {
             display: block;
-            margin-bottom: 5px;
-            color: #495057;
+            margin-bottom: 8px;
+            color: #002752;
+            font-size: 1.05em;
         }
+        .payment-instructions p i {
+            margin-right: 8px;
+            color: #004085;
+        }
+
         .status-badge {
             font-size: 1em;
-            padding: .5em .75em;
+            padding: .6em 1em;
+            border-radius: 25px; /* Lebih rounded */
+            font-weight: 600;
+            text-transform: capitalize;
+            min-width: 140px; /* Lebar minimum lebih konsisten */
+            text-align: center;
+            display: inline-flex; /* Agar ikon dan teks sejajar */
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
         }
+        .status-badge i {
+            margin-right: 8px;
+        }
+        /* Custom badge colors, if needed beyond Bootstrap defaults */
+        .badge.bg-warning.text-dark { background-color: #ffc107 !important; }
+        .badge.bg-info.text-dark { background-color: #0dcaf0 !important; color: #333 !important; }
+        .badge.bg-primary { background-color: #0d6efd !important; }
+        .badge.bg-success { background-color: #198754 !important; }
+        .badge.bg-secondary { background-color: #6c757d !important; }
+
+        .upload-form-section .form-label {
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+        }
+        .upload-form-section .form-label i {
+            margin-right: 8px;
+            color: var(--secondary-color);
+        }
+        .upload-form-section .form-control {
+            border-radius: 5px;
+            padding: 0.65rem 1rem;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.65rem 1.25rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+        }
+        .btn-info i {
+            margin-right: 8px;
+        }
+
         .uploaded-proof-img {
-            max-width: 100%; /* Responsif */
-            max-height: 400px; /* Batas tinggi maksimal */
+            max-width: 100%;
+            max-height: 400px;
             height: auto;
-            margin-top: 15px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 4px;
-            display: block; /* Agar bisa di-center jika parent-nya text-align center */
+            margin-top: 20px;
+            border: 5px solid #fff; /* Border putih yang tebal */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Bayangan pada gambar */
+            border-radius: 8px;
+            display: block;
             margin-left: auto;
             margin-right: auto;
         }
+
         .action-buttons-footer {
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 40px; /* Jarak lebih jauh dari konten atas */
+            padding-top: 30px;
             border-top: 1px solid #e9ecef;
             text-align: center;
         }
         .action-buttons-footer .btn {
-            margin: 0 10px;
+            margin: 0 12px; /* Jarak antar tombol lebih luas */
+            padding: 0.8rem 1.6rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
-        .alert-container { position: sticky; top: 56px; z-index: 1050; width: 100%; }
-        .alert { margin-bottom: 0; border-radius: 0;}
-        .footer-custom { background-color: #e9ecef; padding: 20px 0; text-align: center; margin-top: 40px; font-size: 0.9em; color: #6c757d; }
+        .action-buttons-footer .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .action-buttons-footer .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .action-buttons-footer .btn-outline-secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        .action-buttons-footer .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+        .action-buttons-footer .btn i {
+            margin-right: 8px;
+        }
+
+        /* Styling Flash Messages agar muncul di bawah navbar */
+        .alert-container {
+            position: sticky; top: 56px; z-index: 1050; width: 100%;
+        }
+        .alert {
+            margin-bottom: 0; border-radius: 0;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            text-align: center;
+        }
+        .alert i {
+            margin-right: 10px;
+        }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
+        /* Styling Footer agar konsisten */
+        .footer-custom {
+            background-color: var(--dark-bg);
+            color: #f8f9fa;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 50px !important; /* Pastikan footer punya jarak */
+            font-size: 0.9em;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        .footer-custom small {
+            opacity: 0.8;
+        }
+        /* Akhir Styling Footer */
     </style>
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/dashboard-user}">Toko Sepatu Keren</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item" th:if="${#authentication.principal != null and #authentication.principal != 'anonymousUser'}">
-                    <span class="navbar-text me-3">Selamat datang, <strong sec:authentication="principal.username">Pengguna</strong>!</span>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/cart}"> <i class="fas fa-shopping-cart"></i> Keranjang
-                        <span th:if="${cartItemCount != null && cartItemCount > 0}" class="badge bg-danger rounded-pill ms-1" th:text="${cartItemCount}">0</span>
-                    </a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" th:href="@{/order/history}">Riwayat Pesanan</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
-                        <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);">Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
-                </li>
-            </ul>
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/dashboard-user}">Toko Sepatu Keren</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item" th:if="${#authentication.principal != null and #authentication.principal != 'anonymousUser'}">
+                        <span class="navbar-text me-3">Selamat datang, <strong sec:authentication="principal.username">Pengguna</strong>!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cart}"><i class="fas fa-shopping-cart me-1"></i> Keranjang
+                            <span th:if="${cartItemCount != null && cartItemCount > 0}" class="badge bg-danger rounded-pill ms-1" th:text="${cartItemCount}">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/order/history}"><i class="fas fa-history me-1"></i> Riwayat Pesanan</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                            <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+                        </form>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div class="alert-container">
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
-            <span th:text="${successMessage}"></span>
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-            <span th:text="${errorMessage}"></span>
+            <i class="fas fa-times-circle"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show text-center" role="alert">
+            <i class="fas fa-info-circle"></i> <span th:text="${infoMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
 
     <div class="container">
         <div th:if="${order != null}" class="confirmation-container">
-            <span class="success-icon"><i class="fas fa-check-circle"></i></span> <h1 th:text="${title ?: 'Pesanan Dikonfirmasi!'}">Pesanan Dikonfirmasi!</h1>
+            <span class="success-icon"><i class="fas fa-check-circle"></i></span>
+            <h1 th:text="${title ?: 'Pesanan Dikonfirmasi!'}">Pesanan Dikonfirmasi!</h1>
+            <p class="lead mb-4 text-center text-muted">Terima kasih atas pesanan Anda. Detail pesanan Anda ada di bawah ini.</p>
 
             <div class="order-details-summary">
-                <p>Nomor Pesanan Anda: <strong th:text="'#' + ${order.id}">#ORDERID</strong></p>
-                <p>Total Tagihan: <strong style="color: #dc3545;" th:text="${#numbers.formatCurrency(order.totalAmount)}">Rp 0.00</strong></p>
-            </div>
-
-            <div class="payment-instructions">
-                <h5>Instruksi Pembayaran:</h5>
-                <p>Silakan lakukan pembayaran sejumlah total tagihan ke salah satu rekening berikut:</p>
-                <p>
-                    <strong class="bank-info">Bank BCA:</strong> 123-456-7890 a/n Toko Sepatu Keren Sejahtera<br>
-                    <strong class="bank-info">Bank Mandiri:</strong> 098-765-4321 a/n PT Sepatu Kita Jaya Abadi
-                </p>
-                <p>Setelah melakukan pembayaran, mohon unggah bukti transfer Anda di bawah ini.</p>
+                <p><i class="fas fa-receipt"></i> Nomor Pesanan Anda: <strong th:text="'#' + ${order.id}">#ORDERID</strong></p>
+                <p><i class="fas fa-money-bill-wave"></i> Total Tagihan: <strong class="total-amount-strong" th:text="${#numbers.formatCurrency(order.totalAmount)}">Rp 0.00</strong></p>
+                <p><i class="fas fa-calendar-alt"></i> Tanggal Pesanan: <strong th:text="${order.orderDate != null ? #dates.format(order.orderDate, 'dd MMMM yyyy, HH:mm') : 'N/A'}">Tanggal</strong></p>
                 <p>Status Pesanan Saat Ini:
-                    <span class="badge rounded-pill"
-                          th:classappend="${order.status == 'PENDING_PAYMENT' ? 'bg-warning text-dark' : (order.status == 'PAID' or order.status == 'WAITING_CONFIRMATION' ? 'bg-info text-dark' : (order.status == 'SHIPPED' ? 'bg-primary' : (order.status == 'DELIVERED' ? 'bg-success' : 'bg-secondary')))}"
+                    <span class="badge rounded-pill status-badge"
+                          th:classappend="${order.status == 'PENDING_PAYMENT' ? 'bg-warning text-dark' :
+                                           (order.status == 'WAITING_CONFIRMATION' ? 'bg-info text-dark' :
+                                           (order.status == 'PAID' or order.status == 'PROCESSING' ? 'bg-primary' :
+                                           (order.status == 'SHIPPED' ? 'bg-info' :
+                                           (order.status == 'DELIVERED' ? 'bg-success' : 'bg-secondary'))))}"
                           th:text="${#strings.replace(order.status, '_', ' ').toUpperCase()}">STATUS</span>
                 </p>
             </div>
 
+            <div class="payment-instructions">
+                <h5><i class="fas fa-wallet"></i> Instruksi Pembayaran:</h5>
+                <p><i class="fas fa-info-circle"></i> Silakan lakukan pembayaran sejumlah total tagihan ke salah satu rekening berikut:</p>
+                <p>
+                    <strong class="bank-info"><i class="fas fa-bank"></i> Bank BCA:</strong> 123-456-7890 a/n Toko Sepatu Keren Sejahtera<br>
+                    <strong class="bank-info"><i class="fas fa-bank"></i> Bank Mandiri:</strong> 098-765-4321 a/n PT Sepatu Kita Jaya Abadi
+                </p>
+                <p><i class="fas fa-cloud-upload-alt"></i> Setelah melakukan pembayaran, mohon unggah bukti transfer Anda di bawah ini.</p>
+            </div>
+
             <div th:if="${order.status == 'PENDING_PAYMENT' and order.paymentProofUrl == null}" class="upload-form-section">
-                <h5>Upload Bukti Pembayaran Anda</h5>
+                <h5><i class="fas fa-upload"></i> Upload Bukti Pembayaran Anda</h5>
+                <p class="text-muted">Pastikan ukuran file tidak lebih dari 2MB dan format JPG/PNG.</p>
                 <form action="#" th:action="@{/order/{orderId}/upload-proof(orderId=${order.id})}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
                     <div class="mb-3">
-                        <label for="paymentProofFile" class="form-label">Pilih file gambar (JPG, PNG, maks 2MB):</label>
+                        <label for="paymentProofFile" class="form-label"><i class="fas fa-file-image"></i> Pilih file gambar:</label>
                         <input type="file" class="form-control" id="paymentProofFile" name="paymentProofFile" accept="image/jpeg, image/png" required>
                     </div>
-                    <button type="submit" class="btn btn-info">Upload Bukti</button>
+                    <button type="submit" class="btn btn-info"><i class="fas fa-paper-plane"></i> Upload Bukti</button>
                 </form>
             </div>
 
             <div th:if="${order.paymentProofUrl != null}" class="payment-proof-section">
-                <h5>Bukti Pembayaran Anda</h5>
-                <p>Terima kasih! Bukti pembayaran Anda telah diterima dan akan segera kami verifikasi.</p>
+                <h5><i class="fas fa-image"></i> Bukti Pembayaran Anda</h5>
+                <p><i class="fas fa-check-circle"></i> Terima kasih! Bukti pembayaran Anda telah diterima dan akan segera kami verifikasi.</p>
                 <img th:src="@{${order.paymentProofUrl}}" th:alt="'Bukti Bayar Order #' + ${order.id}" class="uploaded-proof-img">
             </div>
 
             <div th:if="${order.status != 'PENDING_PAYMENT' and order.paymentProofUrl == null and order.status != 'CANCELED'}" class="payment-proof-section">
-                 <p>Status pesanan Anda saat ini adalah <strong th:text="${#strings.replace(order.status, '_', ' ').toUpperCase()}"></strong>.</p>
-                 <p><em>Tidak perlu upload bukti pembayaran untuk status ini atau bukti belum tersedia.</em></p>
+                <p><i class="fas fa-check-double"></i> Status pesanan Anda saat ini adalah <strong th:text="${#strings.replace(order.status, '_', ' ').toUpperCase()}"></strong>.</p>
+                <p class="text-muted"><i class="fas fa-exclamation-circle"></i> *Tidak perlu upload bukti pembayaran untuk status ini atau bukti belum tersedia.</p>
             </div>
 
 
             <div class="action-buttons-footer">
-                <a th:href="@{/dashboard-user}" class="btn btn-primary">Lanjutkan Belanja</a>
-                <a th:href="@{/order/history}" class="btn btn-outline-secondary">Lihat Riwayat Pesanan</a> </div>
+                <a th:href="@{/dashboard-user}" class="btn btn-primary"><i class="fas fa-shopping-bag me-2"></i> Lanjutkan Belanja</a>
+                <a th:href="@{/order/history}" class="btn btn-outline-secondary"><i class="fas fa-history me-2"></i> Lihat Riwayat Pesanan</a>
+            </div>
         </div>
         <div th:if="${order == null}" class="alert alert-danger text-center mt-5">
-            Detail pesanan tidak dapat dimuat atau tidak ditemukan.
+            <i class="fas fa-exclamation-circle me-2"></i> Detail pesanan tidak dapat dimuat atau tidak ditemukan.
         </div>
     </div>
 

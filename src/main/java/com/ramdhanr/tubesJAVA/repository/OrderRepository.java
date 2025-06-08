@@ -18,10 +18,16 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems oi LEFT JOIN FETCH oi.product p WHERE o.id = :orderId AND o.user = :user")
     Optional<Order> findByIdAndUserWithItemsAndProducts(@Param("orderId") Integer orderId, @Param("user") User user);
 
-    // PASTIKAN METODE INI SUDAH BENAR
+    
     @Query("SELECT o FROM Order o JOIN FETCH o.user ORDER BY o.orderDate ASC")
     List<Order> findAllWithUserOrderByOrderDateAsc();
 
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems oi LEFT JOIN FETCH oi.product p WHERE o.id = :orderId")
     Optional<Order> findByIdWithItemsAndProductsAdmin(@Param("orderId") Integer orderId);
+
+    @Query("SELECT o FROM Order o JOIN FETCH o.user u WHERE " +
+           "(:keyword IS NULL OR u.username LIKE %:keyword%) AND " +
+           "(:status IS NULL OR o.status = :status) " +
+           "ORDER BY o.id ASC")
+    List<Order> searchOrders(@Param("keyword") String keyword, @Param("status") String status);
 }

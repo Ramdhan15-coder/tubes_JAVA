@@ -3,8 +3,9 @@ package com.ramdhanr.tubesJAVA.controller;
 import com.ramdhanr.tubesJAVA.dto.CategoryDto;
 import com.ramdhanr.tubesJAVA.model.Category;
 import com.ramdhanr.tubesJAVA.service.CategoryService;
-//import org.springframework.dao.DataIntegrityViolationException; // Import jika ingin menangkap secara spesifik
+
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,25 +27,37 @@ public class AdminCategoryController {
         this.categoryService = categoryService;
     }
 
-    // Menampilkan daftar semua kategori (sudah ada)
+   
     @GetMapping
-    public String listCategories(Model model) {
-        List<Category> allCategories = categoryService.getAllCategories();
-        model.addAttribute("categories", allCategories);
+    public String listCategories(@RequestParam(value = "keyword", required = false) String keyword,
+                                 Model model) {
+
+        List<Category> categoryList;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // Jika ada keyword, lakukan search
+            categoryList = categoryService.searchCategories(keyword);
+        } else {
+            // Jika tidak ada keyword, tampilkan semua kategori
+            categoryList = categoryService.getAllCategories();
+        }
+
+        model.addAttribute("categories", categoryList);
+        model.addAttribute("keyword", keyword); // Kirim kembali keyword ke view
+
         return "admin/categories/list-categories";
     }
 
     // METODE BARU: Menampilkan form untuk membuat kategori baru
     @GetMapping("/new")
     public String showCreateCategoryForm(Model model) {
-        // Hanya tambahkan DTO baru jika belum ada (misal dari error redirect)
+        
         if (!model.containsAttribute("categoryDto")) {
-            model.addAttribute("categoryDto", new CategoryDto("")); // DTO kosong untuk form
+            model.addAttribute("categoryDto", new CategoryDto("")); 
         }
         return "admin/categories/create-category";
     }
 
-    // METODE BARU: Memproses penyimpanan kategori baru
+    // Memproses penyimpanan kategori baru
     @PostMapping("/save")
     public String processCreateCategoryForm(@ModelAttribute("categoryDto") CategoryDto categoryDto,
                                             Model model, // Untuk error handling jika kembali ke form
@@ -54,10 +67,10 @@ public class AdminCategoryController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Kategori '" + newCategory.getName() + "' berhasil ditambahkan!");
             return "redirect:/admin/categories";
-        } catch (IllegalArgumentException e) { // Misal nama kategori sudah ada
+        } catch (IllegalArgumentException e) { 
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("categoryDto", categoryDto); // Kirim kembali DTO yg diinput
-            return "admin/categories/create-category"; // Kembali ke form create
+            model.addAttribute("categoryDto", categoryDto); 
+            return "admin/categories/create-category"; 
         } catch (Exception e) {
             model.addAttribute("error", "Terjadi kesalahan tak terduga saat menyimpan kategori.");
             model.addAttribute("categoryDto", categoryDto);
@@ -65,7 +78,7 @@ public class AdminCategoryController {
         }
     }
 
-    // Menampilkan form edit kategori (sudah ada)
+    // Menampilkan form edit kategori
     @GetMapping("/edit/{categoryId}")
     public String showEditCategoryForm(@PathVariable("categoryId") Integer categoryId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Category> categoryOptional = categoryService.findCategoryById(categoryId);
@@ -81,7 +94,7 @@ public class AdminCategoryController {
         return "admin/categories/edit-category";
     }
 
-    // Memproses update kategori (sudah ada)
+    // Memproses update kategori 
     @PostMapping("/update/{categoryId}")
     public String processUpdateCategoryForm(@PathVariable("categoryId") Integer categoryId,
                                             @ModelAttribute("categoryDto") CategoryDto categoryDto,
@@ -105,13 +118,13 @@ public class AdminCategoryController {
         }
     }
 
-    // METODE BARU: Memproses penghapusan kategori
+    // Memproses penghapusan kategori
     @GetMapping("/delete/{categoryId}")
     public String deleteCategory(@PathVariable("categoryId") Integer categoryId, RedirectAttributes redirectAttributes) {
         try {
             categoryService.deleteCategoryById(categoryId);
             redirectAttributes.addFlashAttribute("successMessage", "Kategori dengan ID " + categoryId + " berhasil dihapus.");
-        } catch (RuntimeException e) { // Menangkap error dari service (misal: kategori tidak ditemukan)
+        } catch (RuntimeException e) { 
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan umum saat menghapus kategori ID " + categoryId + ".");

@@ -13,9 +13,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
     List<Payment> findByOrderId(Integer orderId);
 
-    // Jika kamu mengharapkan hanya satu entri payment per order_id, Optional bisa lebih cocok:
-    // Optional<Payment> findFirstByOrderIdOrderByPaymentDateDesc(Integer orderId);
-
     List<Payment> findByPaymentDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<Payment> findByPaymentMethodIgnoreCase(String paymentMethod);

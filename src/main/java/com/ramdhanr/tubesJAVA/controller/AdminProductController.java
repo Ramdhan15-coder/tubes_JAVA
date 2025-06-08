@@ -6,7 +6,8 @@ import com.ramdhanr.tubesJAVA.model.Category;
 import com.ramdhanr.tubesJAVA.model.Product;
 import com.ramdhanr.tubesJAVA.service.CategoryService;
 import com.ramdhanr.tubesJAVA.service.ProductService;
-import org.springframework.dao.DataIntegrityViolationException; // <-- PASTIKAN IMPORT INI ADA
+import org.springframework.dao.DataIntegrityViolationException; 
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,15 +33,26 @@ public class AdminProductController {
         this.categoryService = categoryService;
     }
 
-    // Metode listProducts() tetap sama
     @GetMapping
-    public String listProducts(Model model) {
-        List<Product> allProducts = productService.getAllProducts();
-        model.addAttribute("products", allProducts);
+    public String listProducts(@RequestParam(value = "keyword", required = false) String keyword,
+                               Model model) {
+
+        List<Product> productList;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+
+            productList = productService.searchProducts(keyword);
+        } else {
+            
+            productList = productService.getAllProducts();
+        }
+
+        model.addAttribute("products", productList);
+        model.addAttribute("keyword", keyword); 
+
         return "admin/products/list-products";
     }
 
-    // Metode showCreateProductForm() tetap sama
+    // Metode showCreateProductForm()
     @GetMapping("/new")
     public String showCreateProductForm(Model model) {
         if (!model.containsAttribute("adminProductCreateDto")) {
@@ -52,7 +64,7 @@ public class AdminProductController {
         return "admin/products/create-product";
     }
 
-    // Metode processCreateProductForm() tetap sama
+    // Metode processCreateProductForm()
     @PostMapping("/save")
     public String processCreateProductForm(@ModelAttribute("adminProductCreateDto") AdminProductCreateDto productCreateDto,
                                            Model model,
@@ -71,7 +83,7 @@ public class AdminProductController {
         }
     }
 
-    // Metode showEditProductForm() tetap sama
+    // Metode showEditProductForm()
     @GetMapping("/edit/{productId}")
     public String showEditProductForm(@PathVariable("productId") Integer productId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Product> productOptional = productService.findProductById(productId);
@@ -97,7 +109,7 @@ public class AdminProductController {
         return "admin/products/edit-product";
     }
 
-    // Metode processUpdateProductForm() tetap sama
+    // Metode processUpdateProductForm() 
     @PostMapping("/update/{productId}")
     public String processUpdateProductForm(@PathVariable("productId") Integer productId,
                                            @ModelAttribute("adminProductUpdateDto") AdminProductUpdateDto productUpdateDto,
@@ -118,25 +130,24 @@ public class AdminProductController {
         }
     }
 
-    // METODE BARU UNTUK MEMPROSES PENGHAPUSAN PRODUK
+    //  UNTUK MEMPROSES PENGHAPUSAN PRODUK
     @GetMapping("/delete/{productId}") // Menghandle GET request dari link hapus
     public String deleteProduct(@PathVariable("productId") Integer productId, RedirectAttributes redirectAttributes) {
         try {
             productService.deleteProductById(productId);
             redirectAttributes.addFlashAttribute("successMessage", "Produk dengan ID " + productId + " berhasil dihapus.");
         } catch (DataIntegrityViolationException e) {
-            // Menangkap error spesifik jika produk terikat dengan data lain (misal order_items)
+           
             redirectAttributes.addFlashAttribute("errorMessage",
                 "Gagal menghapus produk ID " + productId + ". Produk ini mungkin sudah ada dalam pesanan atau data terkait lainnya.");
         } catch (RuntimeException e) {
-            // Menangkap error lain dari service (misal: produk tidak ditemukan)
+           
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            // Menangkap error umum lainnya
+           
             redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan umum saat menghapus produk ID " + productId + ".");
-            // Sebaiknya log error ini juga untuk investigasi lebih lanjut
-            // log.error("Error deleting product ID {}: {}", productId, e.getMessage());
+           
         }
-        return "redirect:/admin/products"; // Redirect kembali ke halaman daftar produk
+        return "redirect:/admin/products"; 
     }
 }

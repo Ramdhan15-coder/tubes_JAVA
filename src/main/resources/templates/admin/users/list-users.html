@@ -1,85 +1,377 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
-<meta charset="UTF-8">
-<title>Manajemen Users</title>
-<style>
-body { font-family: sans-serif; margin: 20px; }
-h1 { color: #333; }
-.action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
-.action-bar a, .action-bar button {
-padding: 8px 15px;
-text-decoration: none;
-border-radius: 4px;
-margin-left: 10px; /* Memberi jarak jika ada tombol lain di kanan */
-}
-.btn-add { background-color: #28a745; color: white; border: none; }
-.btn-add:hover { background-color: #218838; }
-.btn-back { background-color: #6c757d; color: white; }
-.btn-back:hover { background-color: #5a6268; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-th { background-color: #e9ecef; color: #495057;}
-tr:nth-child(even) { background-color: #f9f9f9; }
-.actions-column a, .actions-column button {
-margin-right: 5px;
-padding: 5px 10px;
-font-size: 0.9em;
-}
-.btn-edit { background-color: #ffc107; color: #212529; border:none; }
-.btn-edit:hover { background-color: #e0a800; }
-.btn-delete { background-color: #dc3545; color: white; border:none; }
-.btn-delete:hover { background-color: #c82333; }
-.no-users { text-align: center; color: #6c757d; padding: 20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue */
+            --accent-color: #2ecc71; /* Green for success */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --info-color: #3498db; /* Blue for info/add */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-bg: #34495e; /* Darker blue for table header */
+            --header-text-color: #ffffff; /* White text for table header */
+            --table-strip-bg: #fdfdfd; /* Background for striped table rows */
+            --search-border: #ccc;
+            --search-focus-border: var(--secondary-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px; /* Padding overall */
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto; /* Tengahin container */
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .action-bar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 15px; /* Gap between elements when wrapped */
+        }
+
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex; /* Untuk ikon jika ada */
+            align-items: center;
+            gap: 5px; /* Spasi antara ikon dan teks */
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-add:hover { background-color: #27ae60; transform: translateY(-2px); }
+
+        .btn-back {
+            background-color: var(--primary-color); /* Menggunakan primary-color untuk konsistensi */
+            color: white;
+        }
+        .btn-back:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Search Bar Styling */
+        .search-bar {
+            margin: 25px auto; /* Jarak atas bawah, dan tengahin */
+            display: flex;
+            gap: 10px;
+            max-width: 500px; /* Batasi lebar agar tidak terlalu lebar di tengah */
+            justify-content: center; /* Tengahin konten di dalamnya */
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1; /* Input mengisi ruang yang tersedia */
+            padding: 10px 15px;
+            border: 1px solid var(--search-border);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input[type="text"]:focus {
+            border-color: var(--search-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Soft shadow on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        .search-bar button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9; /* Darker blue */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* Jarak dari search bar */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Bayangan untuk tabel */
+            border-radius: 8px; /* Sudut melengkung untuk tabel */
+            overflow: hidden; /* Penting agar border-radius bekerja pada sel */
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--header-bg); /* Warna baru untuk header tabel */
+            color: var(--header-text-color); /* Teks putih */
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            white-space: nowrap; /* Mencegah teks header wrapping */
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-strip-bg);
+        }
+
+        tr:hover {
+            background-color: #f0f8ff; /* Light blue on hover */
+            cursor: pointer;
+        }
+
+        .actions-column {
+            text-align: center; /* Tombol aksi di tengah kolom */
+            white-space: nowrap; /* Agar tombol tidak pindah baris */
+        }
+        .actions-column a, .actions-column button {
+            margin: 0 3px; /* Jarak antar tombol aksi */
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block; /* Agar bisa margin dan padding */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white; /* Mengubah warna teks edit agar terbaca */
+            border: none;
+        }
+        .btn-edit:hover { background-color: #d35400; transform: translateY(-1px); }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+        }
+        .btn-delete:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        .no-users {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-size: 18px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-danger {
+            background-color: #ffebee; /* Light red */
+            color: var(--danger-color);
+            border-color: #ffcdd2; /* Lighter red border */
+        }
+        .alert-success {
+            background-color: #e8f5e9; /* Light green */
+            color: var(--accent-color);
+            border-color: #c8e6c9; /* Lighter green border */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%; /* Tombol jadi full width di mobile */
+                text-align: center;
+                justify-content: center;
+            }
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch; /* Make input and button full width */
+                max-width: 100%; /* Remove max-width on mobile */
+            }
+            .search-bar input[type="text"] {
+                max-width: 100%; /* No max-width on mobile */
+            }
+            .search-bar button {
+                width: 100%; /* Full width button */
+            }
+            table, thead, tbody, th, td, tr {
+                display: block; /* Membuat tabel stack di mobile */
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid var(--border-color);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 500;
+                color: var(--primary-color);
+            }
+            .actions-column {
+                text-align: center; /* Pertahankan tengah untuk tombol aksi */
+                border-bottom: none;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .alert {
+                font-size: 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-add, .btn-back {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .actions-column a, .actions-column button {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Daftar Pengguna</h1>
+    <div class="container">
+        <h1>Daftar Pengguna</h1>
 
-    <div class="action-bar">
-        <a th:href="@{/dashboard-admin}" class="btn-back">Kembali ke Dashboard Admin</a>
-        <a th:href="@{/admin/users/new}" class="btn-add">Tambah User Baru</a>
-    </div>
+        <div class="action-bar">
+            <a th:href="@{/dashboard-admin}" class="btn btn-back">Kembali ke Dashboard Admin</a>
+            <a th:href="@{/admin/users/new}" class="btn btn-add">Tambah User Baru</a>
+        </div>
 
-    <div th:if="${users.isEmpty()}">
-        <p class="no-users">Belum ada pengguna terdaftar.</p>
-    </div>
-
-    <table th:unless="${users.isEmpty()}">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-                    <div th:if="${errorMessage}" class="alert alert-danger" role="alert"
-            style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
             <p th:text="${errorMessage}"></p>
         </div>
-
-        <div th:if="${successMessage}" class="alert alert-success" role="alert"
-            style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
             <p th:text="${successMessage}"></p>
         </div>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.id}">1</td>
-                <td th:text="${user.username}">Nama Pengguna</td>
-                <td th:text="${user.email}">email@example.com</td>
-                <td th:text="${user.role != null ? user.role.name : 'N/A'}">USER</td>
-                <td class="actions-column">
-                    <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-edit">Edit</a>
-                    <a th:href="@{/admin/users/delete/{id}(id=${user.id})}"
-                       onclick="return confirm('Anda yakin ingin menghapus user ini?');"
-                       class="btn-delete">Hapus</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
-</body>
+        <div class="search-bar" style="width: 60%; margin: 0 auto;">
+             <form th:action="@{/admin/users}" method="get" class="d-flex search-form gap-2">
+        <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Cari username atau email...">
+        <select name="roleId" class="form-select" >
+            <option value="">-- Semua Role --</option>
+            <option th:each="roleOpt : ${roleList}"
+                    th:value="${roleOpt.id}"
+                    th:text="${roleOpt.name}"
+                    th:selected="${roleOpt.id == currentRoleId}">
+                ROLE
+            </option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Cari</button>
+    </form>
+        </div>
+
+        <div th:if="${users.isEmpty()}" class="no-users">
+            <p>Belum ada pengguna terdaftar.</p>
+        </div>
+
+        <div class="table-responsive"> <table th:unless="${users.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td data-label="ID" th:text="${user.id}">1</td>
+                        <td data-label="Username" th:text="${user.username}">Nama Pengguna</td>
+                        <td data-label="Email" th:text="${user.email}">email@example.com</td>
+                        <td data-label="Role" th:text="${user.role != null ? user.role.name : 'N/A'}">USER</td>
+                        <td data-label="Aksi" class="actions-column">
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-edit">Edit</a>
+                            <a th:href="@{/admin/users/delete/{id}(id=${user.id})}"
+                               onclick="return confirm('Anda yakin ingin menghapus user ini?');"
+                               class="btn-delete">Hapus</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> </div> </body>
 </html>

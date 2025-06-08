@@ -3,61 +3,353 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Semua Reviews</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 20px; background-color: #f8f9fa; }
-        .container-custom { max-width: 1200px; margin: auto; padding: 20px; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        .action-bar { margin-bottom: 20px; display: flex; justify-content: flex-start; align-items: center;}
-        .action-bar a {
-            padding: 8px 15px;
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue for buttons/accents */
+            --accent-color: #2ecc71; /* Green for success/positive */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-bg: #34495e; /* Darker blue for table header */
+            --header-text-color: #ffffff; /* White text for table header */
+            --table-strip-bg: #fdfdfd; /* Background for striped table rows */
+            --search-border: #ccc;
+            --search-focus-border: var(--secondary-color);
+            --alert-success-bg: #e8f5e9;
+            --alert-success-text: var(--accent-color);
+            --alert-danger-bg: #ffebee;
+            --alert-danger-text: var(--danger-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px; /* Padding overall */
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        .container { /* Changed from .container-custom for consistency */
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .action-bar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between; /* Space between back button and potential other items */
+            align-items: center;
+            padding: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 1em;
-            border: none;
+            border-radius: 8px; /* Consistent border-radius */
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .btn-back { background-color: #6c757d; color: white; }
-        .btn-back:hover { background-color: #5a6268; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background-color: white; }
-        th, td { border: 1px solid #dfe3e8; padding: 10px 12px; text-align: left; vertical-align: middle; font-size: 0.9em;}
-        th { background-color: #e9ecef; color: #495057; font-weight: 600; text-transform: uppercase;}
-        tr:nth-child(even) { background-color: #fdfdfd; }
-        tr:hover { background-color: #f1f1f1; }
+
+        .btn-back {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-back:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Search Bar Styling (Consistent with Users List) */
+        .search-bar {
+            margin: 25px auto; /* Jarak atas bawah, dan tengahin */
+            display: flex;
+            gap: 10px;
+            max-width: 500px; /* Batasi lebar agar tidak terlalu lebar di tengah */
+            justify-content: center; /* Tengahin konten di dalamnya */
+        }
+
+        .search-bar form {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px; /* Consistent with other inputs */
+            border: 1px solid var(--search-border);
+            border-radius: 8px; /* Consistent border-radius */
+            font-size: 16px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input[type="text"]:focus {
+            border-color: var(--search-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 15px; /* Consistent with input */
+            border-radius: 8px; /* Consistent border-radius */
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* Jarak dari search bar */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 10px; /* Slightly larger border-radius for table */
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px; /* Consistent padding */
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--header-text-color);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-strip-bg);
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .actions-column {
+            text-align: center;
+            white-space: nowrap;
+        }
         .actions-column a, .actions-column button {
-            margin-right: 5px;
-            padding: 5px 10px;
-            font-size: 0.85em;
-            border-radius: 4px;
+            margin: 0 5px; /* Keep margin between buttons */
+            padding: 8px 15px; /* Consistent padding */
+            font-size: 0.9em;
+            border-radius: 8px; /* Consistent border-radius */
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .btn-edit { background-color: #ffc107; color: #212529; border:none; }
-        .btn-edit:hover { background-color: #e0a800; }
-        .btn-delete { background-color: #dc3545; color: white; border:none; }
-        .btn-delete:hover { background-color: #c82333; }
-        .no-reviews { text-align: center; color: #6c757d; padding: 30px; font-size: 1.1em; background-color: #fff; border-radius: 5px; }
-        .rating-stars .fa-star { color: #ffc107; }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white; /* Text white for better contrast */
+            border: none;
+        }
+        .btn-edit:hover { background-color: #d35400; transform: translateY(-1px); }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+        }
+        .btn-delete:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        .no-reviews { /* Changed from .no-users */
+            text-align: center;
+            color: #6c757d;
+            padding: 40px; /* More padding */
+            font-size: 18px; /* Consistent font size */
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        /* Alert Messages (Consistent) */
+        .alert {
+            padding: 15px 20px; /* Consistent padding */
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 8px; /* Consistent border-radius */
+            font-size: 16px;
+            text-align: center;
+            display: flex; /* For potential icons/better alignment */
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .alert-success {
+            background-color: var(--alert-success-bg);
+            color: var(--alert-success-text);
+            border-color: #c8e6c9;
+        }
+        .alert-danger {
+            background-color: var(--alert-danger-bg);
+            color: var(--alert-danger-text);
+            border-color: #ffcdd2;
+        }
+
+        /* Rating Stars Styling */
+        .rating-stars {
+            font-size: 1.1em; /* Make stars slightly larger */
+            white-space: nowrap; /* Prevent stars from wrapping */
+        }
+        .rating-stars .fa-star, .rating-stars .far.fa-star {
+            color: var(--warning-color); /* Warna bintang kuning */
+            margin-right: 2px; /* Jarak antar bintang */
+        }
+        .rating-stars span {
+            vertical-align: middle; /* Align text with stars */
+        }
+        
+        /* Comment Snippet Styling */
         .comment-snippet {
-            max-width: 300px;
+            max-width: 350px; /* Slightly wider than 300px for better readability */
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: block; /* Ensure it takes full width for ellipsis */
         }
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid transparent; }
-        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+        /* Responsive adjustments (Consistent with Users List) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                max-width: 100%;
+            }
+            .search-bar input[type="text"], .search-bar button {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid var(--border-color);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 500;
+                color: var(--primary-color);
+            }
+            .actions-column {
+                text-align: center;
+                border-bottom: none;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .alert {
+                font-size: 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+            .rating-stars, .comment-snippet {
+                white-space: normal; /* Allow wrapping on mobile */
+                max-width: 100%;
+                text-overflow: clip; /* No ellipsis on mobile if wrapping */
+            }
+        }
+        @media (max-width: 480px) {
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .actions-column a, .actions-column button {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container-custom">
+    <div class="container">
         <h1>Kelola Semua Reviews</h1>
 
         <div class="action-bar">
-            <a th:href="@{/dashboard-admin}" class="btn-back">Kembali ke Dashboard Admin</a>
-        </div>
+            <a th:href="@{/dashboard-admin}" class="btn btn-back">Kembali ke Dashboard Admin</a>
+            </div>
 
         <div th:if="${successMessage}" class="alert alert-success" role="alert">
             <p th:text="${successMessage}"></p>
@@ -66,52 +358,62 @@
             <p th:text="${errorMessage}"></p>
         </div>
 
-        <div th:if="${reviews == null or reviews.isEmpty()}">
-            <p class="no-reviews">Belum ada review yang masuk.</p>
+        <div class="search-bar">
+            <form th:action="@{/admin/reviews}" method="get" style="display: flex; width: 100%;">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Cari berdasarkan produk atau pengguna..." class="form-control">
+                <button type="submit" class="btn btn-primary">Cari</button>
+            </form>
         </div>
 
-        <table th:unless="${reviews == null or reviews.isEmpty()}">
-            <thead>
-                <tr>
-                    <th>ID Review</th>
-                    <th>Produk</th>
-                    <th>Pengguna</th>
-                    <th>Rating</th>
-                    <th>Komentar (Cuplikan)</th>
-                    <th>Tanggal Review</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="review : ${reviews}">
-                    <td th:text="${review.reviewId}">1</td>
-                    <td th:text="${review.product != null ? review.product.name : 'Produk Dihapus'}">Nama Produk</td>
-                    <td th:text="${review.user != null ? review.user.username : 'User Dihapus'}">Username Pengguna</td>
-                    <td class="rating-stars">
+        <div th:if="${reviews == null or reviews.isEmpty()}" class="no-reviews">
+            <p>Belum ada review yang masuk.</p>
+        </div>
+
+        <div class="table-responsive">
+            <table th:unless="${reviews == null or reviews.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>ID Review</th>
+                        <th>Produk</th>
+                        <th>Pengguna</th>
+                        <th>Rating</th>
+                        <th>Komentar (Cuplikan)</th>
+                        <th>Tanggal Review</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="review : ${reviews}">
+                        <td data-label="ID Review" th:text="${review.reviewId}">1</td>
+                        <td data-label="Produk" th:text="${review.product != null ? review.product.name : 'Produk Dihapus'}">Nama Produk</td>
+                        <td data-label="Pengguna" th:text="${review.user != null ? review.user.username : 'User Dihapus'}">Username Pengguna</td>
+                        <td data-label="Rating" class="rating-stars">
                         <span th:if="${review.rating != null}">
-                            <span th:each="i : ${#numbers.sequence(1, review.rating)}"><i class="fas fa-star"></i></span>
-                            <span th:each="i : ${#numbers.sequence(1, 5 - review.rating)}"><i class="far fa-star"></i></span>
-                            (<span th:text="${review.rating}">0</span>/5)
+                        <span th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i th:if="${i <= review.rating}" class="fas fa-star"></i>
+                            <i th:if="${i > review.rating}" class="far fa-star"></i>
                         </span>
-                        <span th:unless="${review.rating != null}">N/A</span>
-                    </td>
-                    <td>
-                        <div class="comment-snippet" th:title="${review.comment}" th:text="${review.comment != null ? #strings.abbreviate(review.comment, 100) : ''}">
-                            Komentar singkat...
-                        </div>
-                    </td>
-                    <td th:text="${review.reviewDate != null ? #dates.format(review.reviewDate, 'dd MMM yyyy, HH:mm') : 'N/A'}">Tanggal</td>
-                    <td class="actions-column">
-                        <a th:href="@{/admin/reviews/edit/{id}(id=${review.reviewId})}" class="btn btn-sm btn-edit">Edit</a>
-                        <a th:href="@{/admin/reviews/delete/{id}(id=${review.reviewId})}"
-                           onclick="return confirm('Anda yakin ingin menghapus review ini?');"
-                           class="btn btn-sm btn-delete">Hapus</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        (<span th:text="${review.rating}">0</span>/5)
+                    </span>
+                    <span th:unless="${review.rating != null}">N/A</span>
+                        </td>
+                        <td data-label="Komentar (Cuplikan)">
+                            <div class="comment-snippet" th:title="${review.comment}" th:text="${review.comment != null ? #strings.abbreviate(review.comment, 100) : ''}">
+                                Komentar singkat...
+                            </div>
+                        </td>
+                        <td data-label="Tanggal Review" th:text="${review.reviewDate != null ? #dates.format(review.reviewDate, 'dd MMM yyyy, HH:mm') : 'N/A'}">Tanggal</td>
+                        <td data-label="Aksi" class="actions-column">
+                            <a th:href="@{/admin/reviews/edit/{id}(id=${review.reviewId})}" class="btn btn-edit">Edit</a>
+                            <a th:href="@{/admin/reviews/delete/{id}(id=${review.reviewId})}"
+                               onclick="return confirm('Anda yakin ingin menghapus review ini?');"
+                               class="btn btn-delete">Hapus</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    </body>
 </html>

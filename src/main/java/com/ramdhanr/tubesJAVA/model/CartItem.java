@@ -36,8 +36,6 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    // Timestamp kapan item ini ditambahkan atau terakhir diupdate quantity-nya
-    // Sesuai DDL 'Bisa diupdate jika quantity diubah'
     @UpdateTimestamp // Otomatis diisi/diupdate oleh Hibernate saat record disimpan/diupdate
     @Column(name = "added_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)

@@ -12,5 +12,4 @@ public interface FileStorageService {
      */
     String storeFile(MultipartFile file, String subDirectory);
 
-    // Bisa ditambahkan metode lain nanti, misal deleteFile, loadFile, dll.
 }

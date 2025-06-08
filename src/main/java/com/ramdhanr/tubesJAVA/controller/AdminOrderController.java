@@ -24,16 +24,31 @@ public class AdminOrderController {
         this.orderService = orderService;
     }
 
-    // Metode listAllOrders() tetap sama
+    // Metode listAllOrders()
     @GetMapping
-    public String listAllOrders(Model model) {
-        List<Order> allOrders = orderService.getAllOrdersAdmin();
-        model.addAttribute("orders", allOrders);
+    public String listAllOrders(@RequestParam(value = "keyword", required = false) String keyword,
+                                @RequestParam(value = "status", required = false) String status,
+                                Model model) {
+
+        List<Order> orderList = orderService.searchOrdersAdmin(keyword, status);
+        model.addAttribute("orders", orderList);
+
+        // Kirim kembali parameter pencarian ke view untuk diisi di form
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentStatus", status); 
+
+        // Siapkan daftar status untuk dropdown filter
+        List<String> statusList = List.of(
+            "PENDING_PAYMENT", "WAITING_CONFIRMATION", "PAID", "PROCESSING",
+            "SHIPPED", "DELIVERED", "CANCELED"
+        );
+        model.addAttribute("statusList", statusList);
         model.addAttribute("title", "Kelola Semua Pesanan");
+
         return "admin/orders/list-orders";
     }
 
-    // Metode viewOrder() tetap sama
+    // Metode viewOrder
     @GetMapping("/view/{orderId}")
     public String viewOrder(@PathVariable("orderId") Integer orderId, Model model, RedirectAttributes redirectAttributes) {
         Optional<Order> orderOptional = orderService.findOrderByIdAdmin(orderId);
@@ -62,7 +77,7 @@ public class AdminOrderController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Status untuk Pesanan #" + orderId + " berhasil diupdate menjadi '" + newStatus.replace("_", " ") + "'.");
         } catch (RuntimeException e) {
-            // Menangkap error jika order tidak ditemukan atau ada masalah lain saat update
+            
             redirectAttributes.addFlashAttribute("errorMessage", "Gagal mengupdate status: " + e.getMessage());
         }
         // Redirect kembali ke halaman detail order yang sama
@@ -71,7 +86,7 @@ public class AdminOrderController {
 
 
     // METODE BARU UNTUK MEMPROSES PENGHAPUSAN PESANAN
-    @PostMapping("/delete/{orderId}") // Menghandle POST request
+    @PostMapping("/delete/{orderId}") 
     public String deleteOrder(@PathVariable("orderId") Integer orderId, RedirectAttributes redirectAttributes) {
         try {
             orderService.deleteOrderByIdAdmin(orderId);
@@ -81,9 +96,9 @@ public class AdminOrderController {
             // Jika gagal, kembali ke halaman detail order itu lagi
             return "redirect:/admin/orders/view/" + orderId;
         }
-        // Jika sukses, kembali ke daftar semua pesanan
+        
         return "redirect:/admin/orders";
     }
 
-    // Nanti kita tambahkan metode untuk Delete pesanan di sini
+    
 }

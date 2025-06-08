@@ -1,11 +1,8 @@
 package com.ramdhanr.tubesJAVA.config;
 
-import com.ramdhanr.tubesJAVA.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,21 +10,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler; 
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final UserService userService;
-    private final AuthenticationSuccessHandler customAuthenticationSuccessHandler; 
+    
+    private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    // Modifikasi constructor
-    public SecurityConfig(UserService userService, AuthenticationSuccessHandler customAuthenticationSuccessHandler) {
-        this.userService = userService;
-        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler; 
+    // Constructor sekarang hanya menerima AuthenticationSuccessHandler
+    public SecurityConfig(AuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
 
     @Bean
@@ -35,13 +30,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -51,37 +39,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Proteksi CSRF tetap aktif secara default
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
-                        "/",
-                        "/home",
-                        "/register",
-                        "/do_register",
-                        "/login",
-                        "/css/**",
-                        "/js/**",
-                        "/images/**",
+                        "/", "/home", "/register", "/do_register", "/login", "/perform_login",
+                        "/css/**", "/js/**", "/images/**", "/uploads/**", // Izinkan akses ke static resources
                         "/api/auth/**"
                 ).permitAll()
-                .requestMatchers("/dashboard-user").hasRole("USER")
-                .requestMatchers("/dashboard-admin/**").hasRole("ADMIN") 
+                .requestMatchers("/dashboard-user", "/cart/**", "/order/**").hasRole("USER") // Proteksi halaman user
+                .requestMatchers("/admin/**", "/dashboard-admin/**").hasRole("ADMIN") // Proteksi halaman admin
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/perform_login")
-                .successHandler(customAuthenticationSuccessHandler) 
+                .successHandler(customAuthenticationSuccessHandler)
                 .failureUrl("/login?error=true")
-                .permitAll()
+                // .permitAll() // Sudah tercakup di requestMatchers
             )
+            // Konfigurasi logout yang lebih ringkas
             .logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutUrl("/logout") 
+                .logoutSuccessUrl("/login?logout=true") 
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
-                .permitAll()
             )
-            .authenticationProvider(authenticationProvider());
+            
+            ;
 
         return http.build();
     }

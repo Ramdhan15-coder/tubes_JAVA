@@ -60,7 +60,7 @@
         <h2>Selamat Datang!</h2>
         <p class="lead">Silakan login untuk melanjutkan</p>
 
-        <div th:if="${param.registered}" class="alert alert-success" role="alert">
+        <div th:if="${registered}" class="alert alert-success" role="alert">
             Anda berhasil daftar, silakan masuk.
         </div>
         <div th:if="${param.error}" class="alert alert-danger" role="alert">

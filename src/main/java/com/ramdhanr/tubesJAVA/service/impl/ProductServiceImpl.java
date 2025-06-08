@@ -7,7 +7,7 @@ import com.ramdhanr.tubesJAVA.model.Product;
 import com.ramdhanr.tubesJAVA.repository.ProductRepository;
 import com.ramdhanr.tubesJAVA.service.CategoryService;
 import com.ramdhanr.tubesJAVA.service.ProductService;
-import org.springframework.dao.DataIntegrityViolationException; // <-- IMPORT INI
+import org.springframework.dao.DataIntegrityViolationException; 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class ProductServiceImpl implements ProductService {
         this.categoryService = categoryService;
     }
 
-    // ... (metode getAllProducts, findProductById, createProduct, updateProduct tetap sama) ...
+    
     @Override
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
@@ -92,9 +92,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             productRepository.deleteById(productId);
         } catch (DataIntegrityViolationException e) {
-            // Ini terjadi jika produk memiliki data terkait di tabel lain yang mencegah penghapusan
-            // (misalnya, produk ini ada di order_items dan foreign key-nya ON DELETE RESTRICT)
-            // Kita perlu memberikan pesan error yang lebih jelas kepada admin.
+           
             throw new DataIntegrityViolationException(
                 "Error: Produk tidak dapat dihapus karena sudah digunakan di data lain (misalnya, dalam pesanan). " +
                 "Hapus atau ubah data terkait tersebut terlebih dahulu.", e);
@@ -112,5 +110,14 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setStock(newStock);
         productRepository.save(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> searchProducts(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findAll(); // Jika keyword kosong, kembalikan semua produk
+        }
+        return productRepository.searchByNameOrDescription(keyword);
     }
 }

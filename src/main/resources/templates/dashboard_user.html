@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6"> <head>
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Pengguna - Toko Sepatu Keren</title>
@@ -8,60 +9,175 @@
           rel="stylesheet"
           integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Definisi variabel CSS untuk konsistensi */
+        :root {
+            --primary-color: #007bff; /* Biru utama Bootstrap */
+            --secondary-color: #6c757d; /* Warna abu-abu teks */
+            --accent-color: #28a745; /* Hijau untuk tombol sukses/aksi */
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            --card-hover-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Open Sans', sans-serif; /* Menggunakan Open Sans untuk body */
+            background-color: var(--light-bg);
             padding-top: 70px; /* Tinggi navbar fixed + sedikit padding */
         }
+
+        /* Styling Navbar agar konsisten */
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Tambahkan shadow pada navbar */
+        }
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif; /* Poppins untuk brand agar lebih menonjol */
+            font-weight: 700;
+            color: #fff !important; /* Pastikan warna brand tetap putih */
+        }
+        .nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+        .navbar-text strong {
+            color: #fff; /* Pastikan teks username tetap putih */
+        }
+        /* Akhir Styling Navbar */
+
         .product-card-img {
             height: 200px;
             object-fit: cover;
+            border-top-left-radius: 8px; /* Sudut sedikit melengkung pada gambar */
+            border-top-right-radius: 8px;
         }
         .card {
+            border: none; /* Hilangkan border default Bootstrap */
+            border-radius: 8px; /* Sudut melengkung pada card */
+            box-shadow: var(--card-shadow);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             margin-bottom: 2rem;
+            display: flex; /* Memastikan card-body mengisi tinggi card */
+            flex-direction: column;
         }
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transform: translateY(-8px); /* Sedikit lebih tinggi saat hover */
+            box-shadow: var(--card-hover-shadow); /* Bayangan lebih jelas saat hover */
+        }
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Menjaga elemen di dalam body terdistribusi */
+            flex-grow: 1; /* Memastikan body mengisi ruang yang tersedia */
         }
         .card-title {
+            font-family: 'Poppins', sans-serif; /* Poppins untuk judul produk */
             font-weight: 600;
             color: #333;
-            min-height: 3em; /* Memberi ruang agar judul yang panjang tidak merusak layout */
+            min-height: 3em;
+            margin-bottom: 0.5rem; /* Tambah sedikit margin bawah */
+            line-height: 1.3;
         }
         .card-price {
-            color: #007bff;
-            font-size: 1.2em;
+            color: var(--primary-color); /* Menggunakan warna primary untuk harga */
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3em; /* Harga sedikit lebih besar */
             font-weight: bold;
+            margin-top: auto; /* Push harga ke bawah jika deskripsi pendek */
+            margin-bottom: 1rem; /* Tambah margin bawah untuk memisahkan dari tombol */
         }
         .card-category {
             font-size: 0.85em;
-            color: #6c757d;
+            color: var(--secondary-color);
             margin-bottom: 0.5rem;
         }
+        .card-text.small {
+            font-size: 0.9em;
+            color: #555;
+            flex-grow: 1; /* Agar deskripsi bisa mengisi ruang */
+        }
+
+        /* Gaya untuk placeholder gambar */
+        .card-img-top.d-flex {
+            background-color: #e9ecef !important; /* Warna latar lebih terang untuk placeholder */
+            color: #adb5bd !important; /* Warna ikon lebih lembut */
+            font-size: 1.8em; /* Ukuran ikon diperbesar (sesuai halaman detail) */
+            flex-direction: column; /* Ikon dan teks di tengah vertikal */
+            text-align: center;
+        }
+        .card-img-top.d-flex span {
+            font-size: 0.7em; /* Ukuran teks lebih kecil */
+            margin-top: 5px; /* Jarak antara ikon dan teks */
+        }
+
+        /* Styling Footer agar konsisten */
         .footer-custom {
-            background-color: #e9ecef;
-            padding: 20px 0;
+            background-color: var(--dark-bg); /* Warna gelap untuk footer */
+            color: #f8f9fa; /* Teks putih atau terang */
+            padding: 30px 0;
             text-align: center;
             margin-top: 40px;
             font-size: 0.9em;
-            color: #6c757d;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05); /* Shadow ke atas */
         }
+        .footer-custom small {
+            opacity: 0.8;
+        }
+        /* Akhir Styling Footer */
+
         .action-buttons .btn {
-            margin-right: 5px;
+            margin: 0.25rem; /* Sedikit spasi antar tombol */
+            min-width: 120px; /* Minimal lebar tombol agar konsisten */
+            font-weight: 600;
+            border-radius: 5px;
         }
-        .action-buttons .btn:last-child {
-            margin-right: 0;
+        .action-buttons .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
+        .action-buttons .btn-primary:hover {
+            background-color: #0056b3; /* Sedikit lebih gelap saat hover */
+            border-color: #0056b3;
+        }
+        .action-buttons .btn-success {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        .action-buttons .btn-success:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+
         .alert-container { /* Untuk menampung flash messages agar tidak tertutup navbar */
             position: sticky;
             top: 56px; /* Tinggi navbar */
             z-index: 1050; /* Di atas navbar */
             width: 100%;
         }
-        .alert { margin-bottom: 0; border-radius: 0;}
+        .alert {
+            margin-bottom: 0;
+            border-radius: 0;
+            font-weight: 500;
+            padding: 1rem 1.5rem; /* Padding alert lebih nyaman */
+        }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
+
+        .display-5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: #333;
+            margin-top: 2rem;
+            margin-bottom: 3rem !important; /* Jarak lebih besar dari produk */
+            display: flex; /* Untuk ikon di judul */
+            align-items: center;
+            justify-content: center;
+        }
+        .display-5 i {
+            margin-right: 15px; /* Jarak ikon dari teks judul */
+        }
     </style>
 </head>
 <body>
@@ -78,22 +194,21 @@
                         <span class="navbar-text me-3">Selamat datang, <strong sec:authentication="principal.username">Pengguna</strong>!</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/cart}">
-                            <i class="fas fa-shopping-cart"></i> Keranjang
+                        <a class="nav-link active" th:href="@{/cart}"><i class="fas fa-shopping-cart me-1"></i> Keranjang
                             <span th:if="${cartItemCount != null && cartItemCount > 0}" class="badge bg-danger rounded-pill ms-1" th:text="${cartItemCount}">0</span>
                         </a>
                     </li>
                     <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" th:href="@{/order/history}">Riwayat Pesanan</a>
+                        <a class="nav-link" th:href="@{/order/history}"><i class="fas fa-history me-1"></i> Riwayat Pesanan</a>
                     </li>
                     <li class="nav-item" sec:authorize="isAuthenticated()">
                         <form th:action="@{/logout}" method="post" class="d-inline">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
-                            <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);">Logout</button>
+                            <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
                         </form>
                     </li>
                     <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link" th:href="@{/login}">Login</a>
+                        <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
                     </li>
                 </ul>
             </div>
@@ -111,11 +226,11 @@
         </div>
     </div>
 
-
-    <div class="container mt-4"> <h1 class="mb-4 text-center display-5">Pilihan Sepatu Terbaik Untukmu</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center display-5"><i class="fas fa-shoe-prints"></i> Pilihan Sepatu Terbaik Untukmu</h1>
 
         <div th:if="${products == null or products.isEmpty()}" class="alert alert-info text-center" role="alert">
-            Saat ini belum ada produk yang tersedia. Silakan cek kembali nanti!
+            <i class="fas fa-info-circle me-2"></i> Saat ini belum ada produk yang tersedia. Silakan cek kembali nanti!
         </div>
 
         <div class="row" th:unless="${products == null or products.isEmpty()}">
@@ -124,9 +239,8 @@
                     <img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"
                          th:src="@{${product.imageUrl}}" class="card-img-top product-card-img" alt="Gambar Produk">
                     <div th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"
-                         class="card-img-top d-flex align-items-center justify-content-center product-card-img"
-                         style="background-color: #eee; color: #aaa;">
-                        <span>Gambar Tidak Tersedia</span>
+                         class="card-img-top d-flex flex-column align-items-center justify-content-center product-card-img">
+                        <i class="fas fa-image fa-3x mb-2"></i> <span>Gambar Tidak Tersedia</span>
                     </div>
 
                     <div class="card-body d-flex flex-column">
@@ -139,11 +253,11 @@
                            th:text="${product.description}">Deskripsi singkat...</p>
 
                         <div class="mt-auto text-center action-buttons">
-                             <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary btn-sm mt-2">Lihat Detail</a>
-                             <form th:action="@{/cart/add}" method="post" class="d-inline">
+                            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary btn-sm mt-2"><i class="fas fa-info-circle me-1"></i> Lihat Detail</a>
+                            <form th:action="@{/cart/add}" method="post" class="d-inline">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
                                 <input type="hidden" name="productId" th:value="${product.id}" />
-                                <button type="submit" class="btn btn-success btn-sm mt-2">Tambah Keranjang</button>
+                                <button type="submit" class="btn btn-success btn-sm mt-2"><i class="fas fa-cart-plus me-1"></i> Tambah Keranjang</button>
                             </form>
                         </div>
                     </div>
@@ -154,7 +268,7 @@
 
     <footer class="footer-custom">
         <div class="container">
-            <p>&copy; 2025 Toko Sepatu Keren Ramdhanr. All Rights Reserved.</p>
+            <small>&copy; 2025 Toko Sepatu Keren Ramdhanr. All Rights Reserved.</small>
         </div>
     </footer>
 

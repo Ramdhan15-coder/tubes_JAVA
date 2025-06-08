@@ -3,7 +3,7 @@ package com.ramdhanr.tubesJAVA.dto;
 import java.math.BigDecimal;
 
 // DTO untuk update produk oleh admin
-// Kita tidak sertakan ID di sini karena ID biasanya didapat dari PathVariable di URL
+
 public record AdminProductUpdateDto(
         String name,
         String description,

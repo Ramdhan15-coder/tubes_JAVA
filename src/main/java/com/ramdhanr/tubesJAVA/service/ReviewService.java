@@ -18,6 +18,8 @@ public interface ReviewService {
 
     void deleteReviewById(Integer reviewId); // Sudah ada
 
+    List<Review> searchReviews(String keyword);
+
     Optional<Review> findReviewById(Integer reviewId); // <-- TAMBAHKAN METODE INI
 
     Review updateReviewByAdmin(Integer reviewId, AdminReviewUpdateDto reviewUpdateDto); // <-- TAMBAHKAN METODE INI

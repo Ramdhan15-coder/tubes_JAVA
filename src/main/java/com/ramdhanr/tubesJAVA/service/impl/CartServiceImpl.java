@@ -9,10 +9,10 @@ import com.ramdhanr.tubesJAVA.repository.ShoppingCartRepository;
 import com.ramdhanr.tubesJAVA.service.CartService;
 import com.ramdhanr.tubesJAVA.service.ProductService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Pastikan import ini ada
+import org.springframework.transaction.annotation.Transactional; 
 
 import java.math.BigDecimal;
-import java.util.Collections; // Untuk List.of() jika Java < 9, atau Collections.emptyList()
+import java.util.Collections; 
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional // Ini adalah operasi yang bisa membuat cart baru (write)
+    @Transactional 
     public ShoppingCart getCartForUser(User user) {
         return shoppingCartRepository.findByUserId(user.getId())
                 .orElseGet(() -> {
@@ -43,13 +43,13 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional // Ini adalah operasi yang bisa menambah/update item (write)
+    @Transactional 
     public CartItem addProductToCart(User user, Integer productId, int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity harus lebih dari 0.");
         }
 
-        ShoppingCart cart = getCartForUser(user); // Panggilan ini bisa menyebabkan INSERT ke shopping_carts
+        ShoppingCart cart = getCartForUser(user); 
         Product product = productService.findProductById(productId)
                 .orElseThrow(() -> new RuntimeException("Produk dengan ID " + productId + " tidak ditemukan."));
 
@@ -77,7 +77,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional // Ini adalah operasi yang bisa update/delete item (write)
+    @Transactional 
     public CartItem updateCartItemQuantity(User user, Integer cartItemId, int newQuantity) {
         ShoppingCart cart = getCartForUser(user);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
@@ -116,7 +116,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional // Ini adalah operasi delete (write)
+    @Transactional 
     public void clearCart(User user) {
         ShoppingCart cart = getCartForUser(user);
         List<CartItem> items = cartItemRepository.findByShoppingCartId(cart.getId());
@@ -126,12 +126,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Ini operasi baca, tapi memanggil getCartForUser yang mungkin write.
-                                  // Seharusnya getCartForUser sudah memastikan cart ada,
-                                  // jadi pemanggilan berikutnya di konteks readOnly aman.
-                                  // Namun, jika getCartForUser dipanggil PERTAMA KALI dari sini
-                                  // dan harus create cart, ini akan error.
-                                  // Untuk amannya, dan karena getCartForUser bisa create, kita buat read-write.
+    @Transactional(readOnly = true) 
+                        
     public BigDecimal getTotalCartPrice(User user) {
         ShoppingCart cart = getCartForUser(user); // Bisa create cart
         if (cart == null || cart.getId() == null) return BigDecimal.ZERO;
@@ -148,12 +144,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional // PERBAIKAN DI SINI: Dihapus readOnly = true
+    @Transactional 
     public List<CartItem> getCartItems(User user) {
-        ShoppingCart cart = getCartForUser(user); // Panggilan ini bisa menyebabkan INSERT
+        ShoppingCart cart = getCartForUser(user); 
         if (cart == null || cart.getId() == null) {
-            // Jika getCartForUser karena suatu hal gagal mengembalikan cart yang valid
-            // (meskipun implementasi kita mencoba membuatnya), kembalikan list kosong.
+           
             return Collections.emptyList(); 
         }
         return cartItemRepository.findByShoppingCartId(cart.getId());

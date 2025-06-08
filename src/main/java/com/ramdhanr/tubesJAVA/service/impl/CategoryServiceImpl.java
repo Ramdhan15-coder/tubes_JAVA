@@ -1,6 +1,6 @@
 package com.ramdhanr.tubesJAVA.service.impl;
 
-import com.ramdhanr.tubesJAVA.dto.CategoryDto; // <-- IMPORT DTO CATEGORY
+import com.ramdhanr.tubesJAVA.dto.CategoryDto;
 import com.ramdhanr.tubesJAVA.model.Category;
 import com.ramdhanr.tubesJAVA.repository.CategoryRepository;
 import com.ramdhanr.tubesJAVA.service.CategoryService;
@@ -23,7 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll(); // Bisa diurutkan jika perlu, misal: findAll(Sort.by("name"))
+        return categoryRepository.findAll(); 
     }
 
     @Override
@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Category> findByName(String name) {
-        return categoryRepository.findByName(name); // Asumsi metode ini ada di CategoryRepository
+        return categoryRepository.findByName(name);
     }
 
     @Override
@@ -72,14 +72,20 @@ public class CategoryServiceImpl implements CategoryService {
         if (!categoryRepository.existsById(categoryId)) {
             throw new RuntimeException("Error: Kategori dengan ID " + categoryId + " tidak ditemukan.");
         }
-        // Karena ada ON DELETE SET NULL di tabel products,
-        // kita tidak perlu khawatir DataIntegrityViolationException dari sisi products.
-        // Namun, jika ada constraint lain, perlu ditangani.
+      
         try {
             categoryRepository.deleteById(categoryId);
         } catch (Exception e) {
             // Catch exception umum jika ada masalah lain saat delete
             throw new RuntimeException("Error: Gagal menghapus kategori ID " + categoryId + ". " + e.getMessage(), e);
         }
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<Category> searchCategories(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return categoryRepository.findAll(); // Jika keyword kosong, kembalikan semua kategori
+        }
+        return categoryRepository.findByNameContainingIgnoreCase(keyword);
     }
 }

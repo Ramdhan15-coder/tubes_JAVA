@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -31,15 +32,26 @@ public class AdminUserController {
         this.roleService = roleService;
     }
 
-    // Metode listUsers() tetap sama
+    // Metode listUsers() 
     @GetMapping
-    public String listUsers(Model model) {
-        List<User> userList = userService.getAllUsers();
+    public String listUsers(@RequestParam(value = "keyword", required = false) String keyword,
+                            @RequestParam(value = "roleId", required = false) Integer roleId,
+                            Model model) {
+
+        List<User> userList = userService.searchUsers(keyword, roleId);
+
         model.addAttribute("users", userList);
+        model.addAttribute("keyword", keyword); // Kirim kembali keyword
+        model.addAttribute("currentRoleId", roleId); // Kirim kembali roleId yang dipilih
+
+        // Ambil semua role untuk diisi di dropdown filter
+        List<Role> allRoles = roleService.getAllRoles();
+        model.addAttribute("roleList", allRoles);
+
         return "admin/users/list-users";
     }
 
-    // Metode showCreateUserForm() tetap sama
+    // Metode showCreateUserForm() 
     @GetMapping("/new")
     public String showCreateUserForm(Model model) {
         if (!model.containsAttribute("adminCreateUserDto")) {
@@ -50,7 +62,7 @@ public class AdminUserController {
         return "admin/users/create-user";
     }
 
-    // Metode processCreateUserForm() tetap sama
+    // Metode processCreateUserForm() 
     @PostMapping("/save")
     public String processCreateUserForm(@ModelAttribute("adminCreateUserDto") AdminCreateUserDto createUserDto,
                                         Model model,
@@ -75,7 +87,7 @@ public class AdminUserController {
         }
     }
 
-    // Metode showEditUserForm() tetap sama
+    // Metode showEditUserForm() 
     @GetMapping("/edit/{userId}")
     public String showEditUserForm(@PathVariable("userId") Integer userId, Model model, RedirectAttributes redirectAttributes) {
         Optional<User> userOptional = userService.findUserById(userId);
@@ -98,7 +110,7 @@ public class AdminUserController {
         return "admin/users/edit-user";
     }
 
-    // Metode processUpdateUserForm() tetap sama
+    // Metode processUpdateUserForm() 
     @PostMapping("/update/{userId}")
     public String processUpdateUserForm(@PathVariable("userId") Integer userId,
                                         @ModelAttribute("adminUpdateUserDto") AdminUpdateUserDto updateUserDto,
@@ -126,21 +138,21 @@ public class AdminUserController {
         }
     }
 
-    /// MODIFIKASI DI SINI: Pisahkan catch block untuk deleteUser
+    ///Pisahkan catch block untuk deleteUser
     @GetMapping("/delete/{userId}")
     public String deleteUser(@PathVariable("userId") Integer userId, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUserById(userId);
             redirectAttributes.addFlashAttribute("successMessage", "User dengan ID " + userId + " berhasil dihapus.");
-        } catch (IllegalArgumentException e) { // Tangani IllegalArgumentException (misal: self-delete)
+        } catch (IllegalArgumentException e) { 
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        } catch (DataIntegrityViolationException e) { // Tangani DataIntegrityViolationException
+        } catch (DataIntegrityViolationException e) { 
             redirectAttributes.addFlashAttribute("errorMessage", "Error: User tidak dapat dihapus karena memiliki data terkait (misalnya pesanan). " + e.getMessage());
-        } catch (RuntimeException e) { // Tangani RuntimeException lain (misal: user tidak ditemukan)
+        } catch (RuntimeException e) { 
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        } catch (Exception e) { // Tangani error umum lainnya
+        } catch (Exception e) { 
             redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan umum saat menghapus user.");
         }
-        return "redirect:/admin/users"; // Redirect kembali ke halaman daftar user
+        return "redirect:/admin/users";
     }
 }

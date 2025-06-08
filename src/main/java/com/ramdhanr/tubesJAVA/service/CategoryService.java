@@ -7,15 +7,17 @@ import java.util.Optional;
 
 public interface CategoryService {
 
-    List<Category> getAllCategories(); // Sudah ada
+    List<Category> getAllCategories(); 
 
-    Optional<Category> findCategoryById(Integer categoryId); // Sudah ada
+    Optional<Category> findCategoryById(Integer categoryId);
 
-    Optional<Category> findByName(String name); // <-- TAMBAHKAN (untuk validasi duplikat)
+    Optional<Category> findByName(String name); 
 
-    Category createCategory(CategoryDto categoryDto); // <-- TAMBAHKAN
+    Category createCategory(CategoryDto categoryDto); 
 
-    Category updateCategory(Integer categoryId, CategoryDto categoryDto); // <-- TAMBAHKAN
+    List<Category> searchCategories(String keyword);
 
-    void deleteCategoryById(Integer categoryId); // <-- TAMBAHKAN
+    Category updateCategory(Integer categoryId, CategoryDto categoryDto); 
+
+    void deleteCategoryById(Integer categoryId); 
 }

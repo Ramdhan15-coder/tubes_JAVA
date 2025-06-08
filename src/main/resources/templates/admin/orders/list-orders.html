@@ -1,51 +1,426 @@
 <!DOCTYPE html>
-<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<html lang="id" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title ?: 'Kelola Pesanan'}"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 20px; background-color: #f8f9fa; }
-        .container-fluid { max-width: 1400px; margin: auto; padding: 20px; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        .action-bar { margin-bottom: 20px; display: flex; justify-content: flex-start; align-items: center;}
-        .action-bar a {
-            padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 1em;
-            border: none; cursor: pointer; transition: background-color 0.2s ease;
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue for general buttons/accents */
+            --accent-color: #2ecc71; /* Green for success/positive */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --info-color: #3498db; /* Info blue */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-bg: #34495e; /* Darker blue for table header */
+            --header-text-color: #ffffff; /* White text for table header */
+            --table-strip-bg: #fdfdfd; /* Background for striped table rows */
+            --search-border: #ccc;
+            --search-focus-border: var(--secondary-color);
+            --alert-success-bg: #e8f5e9;
+            --alert-success-text: var(--accent-color);
+            --alert-danger-bg: #ffebee;
+            --alert-danger-text: var(--danger-color);
+
+            /* Status Badge Colors */
+            --status-pending-payment: #f39c12; /* Warning orange */
+            --status-waiting-confirmation: #3498db; /* Info blue */
+            --status-paid-processing: #2c3e50; /* Primary dark blue */
+            --status-shipped: #1abc9c; /* Turquoise */
+            --status-delivered: #2ecc71; /* Accent green */
+            --status-cancelled: #e74c3c; /* Danger red */
+            --status-default: #95a5a6; /* Grey for others */
+            --status-text-light: white;
+            --status-text-dark: #333;
         }
-        .btn-back { background-color: #6c757d; color: white; }
-        .btn-back:hover { background-color: #5a6268; }
-        .table-responsive { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .table th { background-color: #e9ecef; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.85em; }
-        .table td { vertical-align: middle; font-size: 0.9em; }
-        .status-badge { font-size: 0.9em; padding: .4em .65em; font-weight: 500;}
-        .actions-column a { padding: 5px 10px; font-size: 0.9em; }
-        .btn-view { background-color: #0d6efd; color: white; }
-        .btn-view:hover { background-color: #0b5ed7; }
-        .no-orders { text-align: center; color: #6c757d; padding: 40px; font-size: 1.2em; background-color: #fff; border-radius: 5px; }
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .alert-success { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; }
-        .alert-danger { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px; /* Padding overall */
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        .container { /* Changed from .container-fluid for consistency, max-width adjusted */
+            max-width: 1400px; /* Keep original max-width for wider table */
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .action-bar {
+            margin-bottom: 25px; /* Jarak yang konsisten */
+            display: flex;
+            justify-content: flex-start; /* Only back button */
+            align-items: center;
+            padding: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px; /* Consistent border-radius */
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-back {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-back:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Search Bar Styling (Consistent with other Lists) */
+        .search-bar {
+            margin: 25px auto;
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            justify-content: center;
+        }
+
+        .search-bar form {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--search-border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input[type="text"]:focus {
+            border-color: var(--search-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--card-bg); /* Table background white */
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px; /* Consistent padding */
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--header-text-color);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-strip-bg);
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        /* Status Badge Styling (Customized) */
+        .status-badge {
+            font-size: 0.9em;
+            padding: .5em .75em; /* Adjusted padding */
+            font-weight: 600; /* Bolder text */
+            border-radius: 5px; /* Consistent border-radius */
+            display: inline-block; /* For badges to be block elements in a line */
+            text-transform: uppercase; /* Uppercase status */
+        }
+        /* Color mapping for status badges */
+        .status-badge.status-PENDING_PAYMENT { background-color: var(--status-pending-payment); color: var(--status-text-dark); }
+        .status-badge.status-WAITING_CONFIRMATION { background-color: var(--status-waiting-confirmation); color: var(--status-text-light); }
+        .status-badge.status-PAID, .status-badge.status-PROCESSING { background-color: var(--status-paid-processing); color: var(--status-text-light); }
+        .status-badge.status-SHIPPED { background-color: var(--status-shipped); color: var(--status-text-light); }
+        .status-badge.status-DELIVERED { background-color: var(--status-delivered); color: var(--status-text-light); }
+        .status-badge.status-CANCELLED { background-color: var(--status-cancelled); color: var(--status-text-light); }
+        .status-badge.status-default { background-color: var(--status-default); color: var(--status-text-light); }
+
+        /* Bukti Bayar Link */
+        .payment-proof-link {
+            color: var(--secondary-color); /* Blue link */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .payment-proof-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .text-muted {
+            color: #999 !important; /* Lighter gray for N/A */
+            font-style: italic;
+        }
+
+
+        .actions-column {
+            text-align: center;
+            white-space: nowrap;
+        }
+        .actions-column a, .actions-column button {
+            margin: 0 5px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border-radius: 8px; /* Consistent border-radius */
+            text-decoration: none;
+            display: inline-flex; /* For icon + text */
+            align-items: center;
+            gap: 5px; /* Space between icon and text */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-view {
+            background-color: var(--secondary-color); /* Blue for view/detail */
+            color: white;
+            border: none;
+        }
+        .btn-view:hover { background-color: #2980b9; transform: translateY(-1px); }
+
+        .no-orders {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-size: 18px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        /* Alert Messages (Consistent) */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .alert-success {
+            background-color: var(--alert-success-bg);
+            color: var(--alert-success-text);
+            border-color: #c8e6c9;
+        }
+        .alert-danger {
+            background-color: var(--alert-danger-bg);
+            color: var(--alert-danger-text);
+            border-color: #ffcdd2;
+        }
+
+        /* Responsive adjustments (Consistent with other List pages) */
+        @media (max-width: 992px) { /* Adjust breakpoint for wider table */
+            .table th, .table td {
+                font-size: 0.85em; /* Smaller font on smaller screens */
+                padding: 12px;
+            }
+            .status-badge {
+                padding: .4em .6em;
+                font-size: 0.8em;
+            }
+            .actions-column a, .actions-column button {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            /* Search bar specific responsive adjustments */
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                max-width: 100%; /* Full width on small screens */
+            }
+            .search-bar input[type="text"], .search-bar button {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block; /* Make table stack on mobile */
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid var(--border-color);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 500;
+                color: var(--primary-color);
+            }
+            .actions-column {
+                text-align: center;
+                border-bottom: none;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .alert {
+                font-size: 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+            /* Adjust status badge in stacked view */
+            td[data-label="Status"] {
+                text-align: right;
+            }
+            td[data-label="Status"] .status-badge {
+                margin-left: auto; /* Push badge to the right */
+            }
+            td[data-label="Bukti Bayar"] {
+                text-align: right;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .actions-column a, .actions-column button {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <h1 th:text="${title ?: 'Kelola Semua Pesanan'}"></h1>
+    <div class="container"> <h1 th:text="${title ?: 'Kelola Semua Pesanan'}"></h1>
 
         <div class="action-bar">
-            <a th:href="@{/dashboard-admin}" class="btn-back">Kembali ke Dashboard Admin</a>
+            <a th:href="@{/dashboard-admin}" class="btn btn-back">Kembali ke Dashboard Admin</a>
+            </div>
+
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
         </div>
 
-        <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
-        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+        <div class="search-bar" style="width: 60%; margin: 0 auto;"> <form th:action="@{/admin/orders}" method="get" class="d-flex ms-auto gap-2">
+        <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Cari nama pelanggan...">
+        
+        <select name="status" class="form-select">
+            <option value="">-- Semua Status --</option>
+            <option th:each="statusOpt : ${statusList}"
+                    th:value="${statusOpt}"
+                    th:text="${#strings.replace(statusOpt, '_', ' ')}"
+                    th:selected="${statusOpt == currentStatus}">
+                STATUS
+            </option>
+        </select>
+        
+        <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
 
         <div th:if="${orders == null or orders.isEmpty()}" class="no-orders">
             <p>Belum ada pesanan yang masuk.</p>
         </div>
 
-        <div class="table-responsive" th:unless="${orders == null or orders.isEmpty()}">
-            <table class="table table-striped table-hover align-middle">
+        <div class="table-responsive">
+            <table th:unless="${orders == null or orders.isEmpty()}">
                 <thead>
                     <tr>
                         <th>ID Pesanan</th>
@@ -59,36 +434,33 @@
                 </thead>
                 <tbody>
                     <tr th:each="order : ${orders}">
-                        <td th:text="'#' + ${order.id}">#1</td>
-                        <td th:text="${order.user?.username ?: 'N/A'}">Username Pelanggan</td>
-                        <td th:text="${#dates.format(order.orderDate, 'dd MMM yyyy, HH:mm')}">Tanggal</td>
-                        <td th:text="${#numbers.formatCurrency(order.totalAmount)}">Rp 0.00</td>
-                        <td>
-                            <span class="badge rounded-pill status-badge"
-                                  th:classappend="${order.status == 'PENDING_PAYMENT' ? 'bg-warning text-dark' :
-                                                   (order.status == 'WAITING_CONFIRMATION' ? 'bg-info text-dark' :
-                                                   (order.status == 'PAID' or order.status == 'PROCESSING' ? 'bg-primary' :
-                                                   (order.status == 'SHIPPED' ? 'bg-info' :
-                                                   (order.status == 'DELIVERED' ? 'bg-success' : 'bg-secondary'))))}"
+                        <td data-label="ID Pesanan" th:text="'#' + ${order.id}">#1</td>
+                        <td data-label="Pelanggan" th:text="${order.user?.username ?: 'N/A'}">Username Pelanggan</td>
+                        <td data-label="Tanggal Pesan" th:text="${#dates.format(order.orderDate, 'dd MMM yyyy, HH:mm')}">Tanggal</td>
+                        <td data-label="Total" th:text="${#numbers.formatCurrency(order.totalAmount)}">Rp 0.00</td>
+                        <td data-label="Status">
+                            <span class="status-badge"
+                                  th:classappend="${order.status == 'PENDING_PAYMENT' ? 'status-PENDING_PAYMENT' :
+                                                 (order.status == 'WAITING_CONFIRMATION' ? 'status-WAITING_CONFIRMATION' :
+                                                 (order.status == 'PAID' or order.status == 'PROCESSING' ? 'status-PAID_PROCESSING' :
+                                                 (order.status == 'SHIPPED' ? 'status-SHIPPED' :
+                                                 (order.status == 'DELIVERED' ? 'status-DELIVERED' :
+                                                 (order.status == 'CANCELLED' ? 'status-CANCELLED' : 'status-default')))))}"
                                   th:text="${#strings.replace(order.status, '_', ' ')}">
-                                PENDING_PAYMENT
+                                PENDING PAYMENT
                             </span>
                         </td>
-                        <td>
-                            <a th:if="${order.paymentProofUrl != null}" th:href="@{${order.paymentProofUrl}}" target="_blank">Lihat Bukti</a>
+                        <td data-label="Bukti Bayar">
+                            <a th:if="${order.paymentProofUrl != null}" th:href="@{${order.paymentProofUrl}}" target="_blank" class="payment-proof-link">Lihat Bukti</a>
                             <span th:unless="${order.paymentProofUrl != null}" class="text-muted">_</span>
                         </td>
-                        <td class="actions-column">
-                            <a th:href="@{/admin/orders/view/{id}(id=${order.id})}" class="btn btn-sm btn-view">
+                        <td data-label="Aksi" class="actions-column">
+                            <a th:href="@{/admin/orders/view/{id}(id=${order.id})}" class="btn btn-view">
                                 <i class="fas fa-eye"></i> Detail / Update
                             </a>
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        </div> </div> </body>
 </html>

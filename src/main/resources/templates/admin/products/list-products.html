@@ -3,103 +3,416 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Produk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        .action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
-        .action-bar a, .action-bar button {
-            padding: 10px 18px;
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue for buttons/accents */
+            --accent-color: #2ecc71; /* Green for success/positive */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-bg: #34495e; /* Darker blue for table header */
+            --header-text-color: #ffffff; /* White text for table header */
+            --table-strip-bg: #fdfdfd; /* Background for striped table rows */
+            --search-border: #ccc;
+            --search-focus-border: var(--secondary-color);
+            --alert-success-bg: #e8f5e9;
+            --alert-success-text: var(--accent-color);
+            --alert-danger-bg: #ffebee;
+            --alert-danger-text: var(--danger-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px; /* Padding overall */
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        .container { /* New container wrapper for consistent styling */
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .action-bar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
             text-decoration: none;
-            border-radius: 5px;
-            margin-left: 10px;
-            font-size: 1em;
-            border: none;
+            border-radius: 8px; /* Consistent border-radius */
+            font-size: 16px;
             cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-add:hover { background-color: #27ae60; transform: translateY(-2px); }
+
+        .btn-back {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-back:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Search Bar Styling (Consistent with Users/Reviews List) */
+        .search-bar {
+            margin: 25px auto;
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            justify-content: center;
+        }
+
+        .search-bar form {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--search-border);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input[type="text"]:focus {
+            border-color: var(--search-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
             transition: background-color 0.3s ease;
         }
-        .btn-add { background-color: #28a745; color: white; }
-        .btn-add:hover { background-color: #218838; }
-        .btn-back { background-color: #6c757d; color: white; }
-        .btn-back:hover { background-color: #5a6268; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background-color: white; }
-        th, td { border: 1px solid #dfe3e8; padding: 12px 15px; text-align: left; vertical-align: middle;}
-        th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size:0.9em;}
-        tr:nth-child(even) { background-color: #fdfdfd; }
-        tr:hover { background-color: #f1f1f1; }
-
-        .actions-column a, .actions-column button {
-            margin-right: 8px;
-            padding: 6px 12px;
-            font-size: 0.85em;
-            border-radius: 4px;
+        .search-bar button:hover {
+            background-color: #2980b9;
         }
-        .btn-edit { background-color: #ffc107; color: #212529; border:none; }
-        .btn-edit:hover { background-color: #e0a800; }
-        .btn-delete { background-color: #dc3545; color: white; border:none; }
-        .btn-delete:hover { background-color: #c82333; }
 
-        .no-products { text-align: center; color: #6c757d; padding: 30px; font-size: 1.1em; background-color: #fff; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .product-image { max-width: 70px; max-height: 70px; border-radius: 4px; border: 1px solid #eee; object-fit: cover; }
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid transparent; font-size: 1em; }
-        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px; /* Consistent padding */
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--header-text-color);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-strip-bg);
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .actions-column {
+            text-align: center;
+            white-space: nowrap;
+        }
+        .actions-column a, .actions-column button {
+            margin: 0 5px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+        }
+        .btn-edit:hover { background-color: #d35400; transform: translateY(-1px); }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+        }
+        .btn-delete:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        .no-products {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-size: 18px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+
+        .product-image {
+            max-width: 80px; /* Slightly larger image size */
+            max-height: 80px;
+            border-radius: 8px; /* Consistent with other border-radius */
+            border: 1px solid var(--border-color); /* Consistent border */
+            object-fit: cover;
+            display: block; /* Remove extra space below image */
+            margin: 0 auto; /* Center image in cell */
+        }
+        /* Styling for N/A in image column */
+        td[data-label="Gambar"] span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px; /* Match image height */
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+
+        /* Alert Messages (Consistent) */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .alert-success {
+            background-color: var(--alert-success-bg);
+            color: var(--alert-success-text);
+            border-color: #c8e6c9;
+        }
+        .alert-danger {
+            background-color: var(--alert-danger-bg);
+            color: var(--alert-danger-text);
+            border-color: #ffcdd2;
+        }
+        
+        /* Responsive adjustments (Consistent with Users/Reviews List) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                max-width: 100%;
+            }
+            .search-bar input[type="text"], .search-bar button {
+                width: 100%;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid var(--border-color);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 500;
+                color: var(--primary-color);
+            }
+            .actions-column {
+                text-align: center;
+                border-bottom: none;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+            .alert {
+                font-size: 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+            .product-image {
+                max-width: 100px; /* Larger thumbnail on mobile */
+                max-height: 100px;
+                margin: 0 auto;
+            }
+            td[data-label="Gambar"] {
+                text-align: center; /* Center image label on mobile */
+                padding-left: 0; /* Remove padding from label */
+                display: block; /* Take full width */
+            }
+             td[data-label="Gambar"] span {
+                height: auto; /* Allow height to adjust */
+             }
+        }
+        @media (max-width: 480px) {
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .actions-column a, .actions-column button {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Daftar Produk Sepatu</h1>
+    <div class="container"> <h1>Daftar Produk Sepatu</h1>
 
-    <div class="action-bar">
-        <a th:href="@{/dashboard-admin}" class="btn-back">Kembali ke Dashboard Admin</a>
-        <a th:href="@{/admin/products/new}" class="btn-add">Tambah Produk Baru</a>
-    </div>
+        <div class="action-bar">
+            <a th:href="@{/dashboard-admin}" class="btn btn-back">Kembali ke Dashboard Admin</a>
+            <a th:href="@{/admin/products/new}" class="btn btn-add">Tambah Produk Baru</a>
+        </div>
 
-    <div th:if="${successMessage}" class="alert alert-success" role="alert">
-        <p th:text="${successMessage}"></p>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
-    </div>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
 
+        <div class="search-bar">
+            <form th:action="@{/admin/products}" method="get" style="display: flex; width: 100%;">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Cari berdasarkan nama produk atau kategori..." class="form-control">
+                <button type="submit" class="btn btn-primary">Cari</button>
+            </form>
+        </div>
 
-    <div th:if="${products == null or products.isEmpty()}">
-        <p class="no-products">Belum ada produk yang ditambahkan.</p>
-    </div>
+        <div th:if="${products == null or products.isEmpty()}" class="no-products">
+            <p>Belum ada produk yang ditambahkan.</p>
+        </div>
 
-    <table th:unless="${products == null or products.isEmpty()}">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Gambar</th>
-                <th>Nama Produk</th>
-                <th>Kategori</th>
-                <th>Harga</th>
-                <th>Stok</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="product : ${products}">
-                <td th:text="${product.id}">1</td>
-                <td>
-                    <img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"
-                         th:src="@{${product.imageUrl}}" alt="Gambar Produk" class="product-image"/>
-                    <span th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}">N/A</span>
-                </td>
-                <td th:text="${product.name}">Nama Produk Contoh</td>
-                <td th:text="${product.category != null ? product.category.name : 'N/A'}">Kategori</td>
-                <td th:text="${#numbers.formatCurrency(product.price)}">Rp 0.00</td>
-                <td th:text="${product.stock}">0</td>
-                <td class="actions-column">
-                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn-edit">Edit</a>
-                    <a th:href="@{/admin/products/delete/{id}(id=${product.id})}"
-                       onclick="return confirm('Anda yakin ingin menghapus produk ini?');"
-                       class="btn-delete">Hapus</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-</body>
+        <div class="table-responsive"> <table th:unless="${products == null or products.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Gambar</th>
+                        <th>Nama Produk</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${products}">
+                        <td data-label="ID" th:text="${product.id}">1</td>
+                        <td data-label="Gambar">
+                            <img th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}"
+                                 th:src="@{${product.imageUrl}}" alt="Gambar Produk" class="product-image"/>
+                            <span th:unless="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}">N/A</span>
+                        </td>
+                        <td data-label="Nama Produk" th:text="${product.name}">Nama Produk Contoh</td>
+                        <td data-label="Kategori" th:text="${product.category != null ? product.category.name : 'N/A'}">Kategori</td>
+                        <td data-label="Harga" th:text="${#numbers.formatCurrency(product.price)}">Rp 0.00</td>
+                        <td data-label="Stok" th:text="${product.stock}">0</td>
+                        <td data-label="Aksi" class="actions-column">
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-edit">Edit</a>
+                            <a th:href="@{/admin/products/delete/{id}(id=${product.id})}"
+                               onclick="return confirm('Anda yakin ingin menghapus produk ini?');"
+                               class="btn btn-delete">Hapus</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> </div> </body>
 </html>

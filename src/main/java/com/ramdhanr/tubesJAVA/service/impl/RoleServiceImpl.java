@@ -23,7 +23,7 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findByName(name);
     }
 
-    @Override // <-- TAMBAHKAN IMPLEMENTASI INI
+    @Override 
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }

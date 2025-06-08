@@ -34,7 +34,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     protected String determineTargetUrl(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority grantedAuthority : authorities) {
-            // Ingat, authority kita adalah "ROLE_ADMIN", "ROLE_USER"
+            
             if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
                 return "/dashboard-admin"; // URL untuk dashboard admin
             } else if (grantedAuthority.getAuthority().equals("ROLE_USER")) {
@@ -42,7 +42,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             }
         }
         // Jika tidak ada role yang cocok (seharusnya tidak terjadi jika user punya role)
-        // atau jika user punya role lain yang belum kita handle
+        
         throw new IllegalStateException("User has no suitable role for redirection.");
     }
 }

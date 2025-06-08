@@ -5,33 +5,346 @@
     <title th:text="${title ?: 'Detail Pesanan'}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 20px; }
-        .container-custom { max-width: 1100px; margin: auto; }
-        .order-view-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+        /* Variabel CSS untuk kemudahan kustomisasi */
+        :root {
+            --primary-color: #007bff; /* Biru Bootstrap */
+            --secondary-color: #6c757d; /* Abu-abu Bootstrap */
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --text-color: #343a40;
+            --heading-color: #2c3e50;
+            --font-family: 'Poppins', 'Segoe UI', sans-serif;
         }
-        .card-header-custom {
-            padding: 1rem 1.5rem;
-            background-color: #e9ecef;
-            border-bottom: 1px solid #dee2e6;
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-bg);
+            padding: 30px; /* Sedikit lebih banyak padding */
+            color: var(--text-color);
+        }
+
+        .container-custom {
+            max-width: 1200px; /* Sedikit lebih lebar */
+            margin: auto;
+        }
+
+        /* Header Utama */
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px; /* Jarak lebih di bawah header */
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
-        .card-header-custom h2 { margin: 0; font-size: 1.5em; color: #2c3e50; }
-        .card-body-custom { padding: 1.5rem; }
-        .info-section h5 { font-weight: 600; color: #495057; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        .info-section p { margin-bottom: 8px; }
-        .info-section p strong { min-width: 150px; display: inline-block; }
-        .payment-proof-img { max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd; }
-        .items-table th { font-size: 0.9em; text-transform: uppercase; }
-        .items-table td { font-size: 0.9em; vertical-align: middle; }
-        .item-image { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
-        .status-update-form { background-color: #f0f8ff; padding: 20px; border-radius: 5px; }
+        .page-header h1 {
+            font-weight: 600;
+            color: var(--heading-color);
+            font-size: 2.2em; /* Ukuran lebih besar */
+            margin: 0;
+        }
+        .page-header .btn {
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 50px; /* Tombol kembali lebih rounded */
+            transition: all 0.3s ease;
+        }
+        .page-header .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Card Pesanan */
+        .order-view-card {
+            background-color: var(--card-bg);
+            border-radius: 12px; /* Lebih rounded */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); /* Shadow lebih menonjol tapi lembut */
+            margin-bottom: 30px;
+            overflow: hidden; /* Pastikan konten tidak keluar dari border-radius */
+            border: 1px solid var(--border-color); /* Tambah border tipis */
+        }
+
+        .card-header-custom {
+            padding: 1.5rem 2rem; /* Padding lebih besar */
+            background-color: #f0f4f7; /* Warna header lebih terang */
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align ke atas */
+            flex-wrap: wrap; /* Agar responsif di layar kecil */
+            gap: 15px; /* Jarak antar elemen di header */
+        }
+        .card-header-custom div strong {
+            color: var(--heading-color);
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .card-header-custom .fw-bold.text-danger {
+            color: var(--danger-color) !important; /* Pastikan warna sesuai variabel */
+            font-size: 1.8em !important; /* Ukuran total lebih besar */
+            font-weight: 700;
+            margin-top: 5px; /* Jarak dari total */
+        }
+        .card-header-custom span {
+            color: #555;
+        }
+
+
+        .card-body-custom {
+            padding: 2rem; /* Padding lebih besar */
+        }
+
+        /* Info Section */
+        .info-section {
+            background-color: var(--card-bg); /* Konsisten dengan background card */
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px; /* Jarak antar section */
+            border: 1px solid #f0f0f0; /* Border tipis untuk section */
+        }
+        .info-section h5 {
+            font-weight: 600;
+            color: var(--heading-color);
+            border-bottom: 2px solid var(--primary-color); /* Underline dengan warna primary */
+            padding-bottom: 10px;
+            margin-bottom: 20px; /* Jarak lebih besar */
+            font-size: 1.25em; /* Ukuran heading sedikit lebih besar */
+        }
+        .info-section p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .info-section p strong {
+            min-width: 120px; /* Sesuaikan lebar label */
+            display: inline-block;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .info-section .badge {
+            font-size: 0.9em; /* Badge sedikit lebih kecil */
+            padding: 0.5em 0.8em;
+            border-radius: 20px; /* Lebih rounded */
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            white-space: nowrap; /* Pastikan teks badge tidak pecah */
+        }
+        .badge.bg-warning { background-color: var(--warning-color) !important; color: var(--dark-bg) !important; }
+        .badge.bg-danger { background-color: var(--danger-color) !important; }
+        .badge.bg-success { background-color: var(--success-color) !important; }
+
+            /* Alamat Pengiriman */
+        .shipping-address-box {
+            background: #e9f5ff; /* Warna background lebih lembut */
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            border: 1px dashed var(--primary-color); /* Border putus-putus */
+            color: #444;
+            font-weight: 400;
+}
+
+        /* Bukti Pembayaran */
+        .payment-proof-img {
+            max-width: 250px; /* Ukuran gambar bukti pembayaran lebih terkontrol */
+            max-height: 250px;
+            object-fit: contain; /* Agar gambar tidak terdistorsi */
+            border-radius: 8px; /* Lebih rounded */
+            border: 2px solid var(--border-color);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: zoom-in;
+        }
+        .payment-proof-img:hover {
+            transform: scale(1.02); /* Sedikit zoom saat hover */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Form Update Status */
+        .status-update-form {
+            background-color: #f7f9fc; /* Warna background lebih kalem */
+            border: 1px solid #e2e6ea; /* Border lebih soft */
+        }
+        .status-update-form .form-select {
+            border-radius: 5px 0 0 5px; /* Sesuaikan radius */
+            border-color: #ced4da;
+        }
+        .status-update-form .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 0 5px 5px 0; /* Sesuaikan radius */
+            font-weight: 600;
+            padding: 8px 25px;
+            transition: background-color 0.3s ease;
+        }
+        .status-update-form .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            border-color: #0056b3;
+        }
+
+        /* Tabel Item */
+        .items-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: separate; /* Untuk border-radius di tabel */
+            border-spacing: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden; /* Penting untuk radius */
+        }
+        .items-table thead th {
+            background-color: #f0f4f7; /* Header tabel lebih terang */
+            color: var(--heading-color);
+            font-weight: 600;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .items-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .items-table tbody tr:nth-child(even) {
+            background-color: #fcfdff; /* Warna selang-seling */
+        }
+        .items-table tbody tr:hover {
+            background-color: #e9f7ff; /* Hover effect */
+        }
+        .items-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+            color: #444;
+        }
+        .items-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 60px; /* Ukuran gambar item sedikit lebih besar */
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px; /* Lebih rounded */
+            border: 1px solid #ddd;
+            margin-right: 12px;
+            flex-shrink: 0; /* Pastikan gambar tidak mengecil */
+        }
+        .items-table td:first-child {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Catatan dari Pembeli */
+        .info-section .fst-italic {
+            background-color: #fffacd; /* Warna soft kuning */
+            padding: 15px;
+            border-left: 5px solid #ffeb8e; /* Border kiri tebal */
+            border-radius: 5px;
+            font-size: 0.95em;
+            color: #6a6a6a;
+        }
+
+        /* Aksi Berbahaya */
+        .info-section.text-center {
+            padding: 20px 20px 15px 20px; /* Sesuaikan padding */
+            background-color: #fff5f5; /* Background merah muda lembut */
+            border: 1px solid #ffdcdc;
+        }
+        .info-section.text-center h5 {
+            color: var(--danger-color);
+            border-bottom-color: var(--danger-color);
+        }
+        .info-section.text-center .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+            font-weight: 600;
+            padding: 10px 25px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        .info-section.text-center .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 25px;
+            padding: 15px 20px;
+            font-weight: 500;
+        }
+        .alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+
+        /* Responsif */
+        @media (max-width: 991.98px) {
+            .card-header-custom {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .card-header-custom > div {
+                margin-bottom: 10px;
+            }
+            .card-header-custom > div:last-child {
+                margin-bottom: 0;
+            }
+            .col-lg-5, .col-lg-7 {
+                width: 100%;
+            }
+            .info-section.status-update-form {
+                margin-top: 25px; /* Jarak antara form update status dan aksi berbahaya */
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            body { padding: 15px; }
+            .page-header { flex-direction: column; align-items: flex-start; margin-bottom: 20px; }
+            .page-header h1 { font-size: 1.8em; margin-bottom: 10px; }
+            .card-body-custom { padding: 1.5rem; }
+            .info-section p strong { min-width: unset; display: block; }
+            .items-table thead { display: none; } /* Sembunyikan header tabel di mobile */
+            .items-table, .items-table tbody, .items-table tr, .items-table td { display: block; width: 100%; }
+            .items-table tr { margin-bottom: 15px; border: 1px solid #f0f0f0; border-radius: 8px; padding: 10px; }
+            .items-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                margin-bottom: 5px;
+            }
+            .items-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: var(--heading-color);
+            }
+            .items-table td:first-child {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                padding-left: 10px; /* Reset padding untuk item image */
+            }
+            .items-table td:first-child::before { content: "Produk:"; }
+            .items-table td:nth-child(2)::before { content: "Qty:"; }
+            .items-table td:nth-child(3)::before { content: "Harga Beli:"; }
+            .items-table td:nth-child(4)::before { content: "Subtotal:"; }
+            .item-image { width: 40px; height: 40px; margin-right: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -40,11 +353,11 @@
         <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
-        </div>
-    <div class="container-custom">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <h1 th:text="${title ?: 'Detail Pesanan'}"></h1>
-            <a th:href="@{/admin/orders}" class="btn btn-secondary">&laquo; Kembali ke Daftar Pesanan</a>
+            <a th:href="@{/admin/orders}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Kembali ke Daftar Pesanan
+            </a>
         </div>
 
         <div th:if="${order != null}" class="order-view-card">
@@ -54,7 +367,7 @@
                     <strong>Email:</strong> <span th:text="${order.user?.email ?: 'N/A'}"></span>
                 </div>
                 <div>
-                    <strong>Tanggal Pesan:</strong> <span th:text="${#dates.format(order.orderDate, 'dd MMM yyyy, HH:mm')}"></span><br>
+                    <strong>Tanggal Pesan:</strong> <span class="d-block" th:text="${#dates.format(order.orderDate, 'dd MMM yyyy, HH:mm')}"></span><br>
                     <strong>Total:</strong> <span class="fw-bold text-danger fs-5" th:text="${#numbers.formatCurrency(order.totalAmount)}"></span>
                 </div>
             </div>
@@ -66,11 +379,11 @@
                             <h5>Detail Pengiriman</h5>
                             <p><strong>Status Saat Ini:</strong>
                                 <span class="badge rounded-pill fs-6"
-                                      th:classappend="${#strings.contains(order.status, 'PENDING') or #strings.contains(order.status, 'WAITING') ? 'bg-warning text-dark' : (#strings.contains(order.status, 'CANCELED') ? 'bg-danger' : 'bg-success')}"
-                                      th:text="${#strings.replace(order.status, '_', ' ')}">
+                                        th:classappend="${#strings.contains(order.status, 'PENDING') or #strings.contains(order.status, 'WAITING') ? 'bg-warning text-dark' : (#strings.contains(order.status, 'CANCELED') ? 'bg-danger' : 'bg-success')}"
+                                        th:text="${#strings.replace(order.status, '_', ' ')}">
                                 </span>
                             </p>
-                            <div style="white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 4px;" th:text="${order.shippingAddress}">Alamat Pengiriman</div>
+                            <div class="shipping-address-box" style="white-space: pre-wrap;" th:text="${order.shippingAddress}">Alamat Pengiriman</div>
                         </div>
 
                         <div class="info-section mb-4">
@@ -107,17 +420,6 @@
                         </div>
                     </div>
 
-                    <div class="info-section mt-4 text-center">
-                            <h5>Aksi Berbahaya</h5>
-                            <form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
-                                <button type="submit" class="btn btn-danger"
-                                        onclick="return confirm('PERINGATAN: Aksi ini akan menghapus pesanan ini secara permanen beserta semua item dan data pembayaran terkait. Anda yakin ingin melanjutkan?');">
-                                    <i class="fas fa-trash-alt"></i> Hapus Pesanan Ini
-                                </button>
-                            </form>
-                        </div>
-
                     <div class="col-lg-7">
                         <div class="info-section">
                             <h5>Item yang Dipesan</h5>
@@ -133,13 +435,13 @@
                                     </thead>
                                     <tbody>
                                         <tr th:each="item : ${order.orderItems}">
-                                            <td>
+                                            <td data-label="Produk">
                                                 <img th:src="@{${item.product?.imageUrl ?: '/images/placeholder_default.jpg'}}" class="item-image me-2 align-middle"/>
                                                 <span th:text="${item.product?.name ?: 'Produk Dihapus'}"></span>
                                             </td>
-                                            <td th:text="${item.quantity}"></td>
-                                            <td th:text="${#numbers.formatCurrency(item.priceAtPurchase)}"></td>
-                                            <td th:text="${#numbers.formatCurrency(item.priceAtPurchase.multiply(new java.math.BigDecimal(item.quantity)))}"></td>
+                                            <td data-label="Qty" th:text="${item.quantity}"></td>
+                                            <td data-label="Harga Saat Beli" th:text="${#numbers.formatCurrency(item.priceAtPurchase)}"></td>
+                                            <td data-label="Subtotal" th:text="${#numbers.formatCurrency(item.priceAtPurchase.multiply(new java.math.BigDecimal(item.quantity)))}"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -150,6 +452,16 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="info-section mt-4 text-center">
+                    <h5>Aksi Berbahaya</h5>
+                    <form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('PERINGATAN: Aksi ini akan menghapus pesanan ini secara permanen beserta semua item dan data pembayaran terkait. Anda yakin ingin melanjutkan?');">
+                            <i class="fas fa-trash-alt"></i> Hapus Pesanan Ini
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -3,8 +3,8 @@ package com.ramdhanr.tubesJAVA.controller;
 import com.ramdhanr.tubesJAVA.dto.AdminReviewUpdateDto;
 import com.ramdhanr.tubesJAVA.model.Review;
 import com.ramdhanr.tubesJAVA.service.ReviewService;
-// import org.springframework.dao.DataIntegrityViolationException; // Tidak kita tangkap secara spesifik di sini
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestParam; 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,15 +26,28 @@ public class AdminReviewController {
         this.reviewService = reviewService;
     }
 
-    // Metode listAllReviews() tetap sama
+    // Metode listAllReviews() 
     @GetMapping
-    public String listAllReviews(Model model) {
-        List<Review> allReviews = reviewService.getAllReviews();
+    public String listAllReviews(@RequestParam(value = "keyword", required = false) String keyword,
+                                 Model model) {
+
+        List<Review> allReviews;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // Jika ada keyword, lakukan search
+            allReviews = reviewService.searchReviews(keyword);
+        } else {
+            // Jika tidak ada keyword, tampilkan semua review
+            allReviews = reviewService.getAllReviews();
+        }
+
         model.addAttribute("reviews", allReviews);
+        model.addAttribute("keyword", keyword); // Kirim kembali keyword ke view
+        model.addAttribute("title", "Kelola Semua Reviews");
+
         return "admin/reviews/list-reviews";
     }
 
-    // Metode deleteReview() tetap sama
+    // Metode deleteReview() 
     @GetMapping("/delete/{reviewId}")
     public String deleteReview(@PathVariable("reviewId") Integer reviewId, RedirectAttributes redirectAttributes) {
         try {
@@ -59,7 +72,7 @@ public class AdminReviewController {
         }
 
         Review review = reviewOptional.get();
-        if (!model.containsAttribute("adminReviewUpdateDto")) { // Hanya set jika belum ada (misal dari error redirect)
+        if (!model.containsAttribute("adminReviewUpdateDto")) { 
             AdminReviewUpdateDto reviewUpdateDto = new AdminReviewUpdateDto(
                     review.getRating(),
                     review.getComment()
@@ -71,7 +84,7 @@ public class AdminReviewController {
         return "admin/reviews/edit-review";
     }
 
-    // METODE BARU UNTUK MEMPROSES SUBMIT FORM EDIT REVIEW
+    //  UNTUK MEMPROSES SUBMIT FORM EDIT REVIEW
     @PostMapping("/update/{reviewId}")
     public String processUpdateReviewForm(@PathVariable("reviewId") Integer reviewId,
                                           @ModelAttribute("adminReviewUpdateDto") AdminReviewUpdateDto reviewUpdateDto,
@@ -81,26 +94,23 @@ public class AdminReviewController {
             Review updatedReview = reviewService.updateReviewByAdmin(reviewId, reviewUpdateDto);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Review ID " + updatedReview.getReviewId() + " berhasil diupdate!");
-            return "redirect:/admin/reviews"; // Redirect ke halaman daftar review
-        } catch (RuntimeException e) { // Menangkap error dari service (misal: Review tidak ditemukan saat update)
-            model.addAttribute("error", e.getMessage()); // Kirim pesan error ke view
+            return "redirect:/admin/reviews"; 
+        } catch (RuntimeException e) { 
+            model.addAttribute("error", e.getMessage()); 
             // Kirim kembali DTO yang sudah diisi pengguna
             model.addAttribute("adminReviewUpdateDto", reviewUpdateDto);
-            model.addAttribute("reviewId", reviewId); // Kirim kembali reviewId
+            model.addAttribute("reviewId", reviewId); 
 
-            // Kita juga butuh objek review asli lagi untuk menampilkan info kontekstual di form edit
+          
             Optional<Review> reviewOptional = reviewService.findReviewById(reviewId);
             reviewOptional.ifPresent(review -> model.addAttribute("review", review));
-            // Jika reviewOptional kosong (seharusnya tidak terjadi jika update gagal karena error validasi,
-            // tapi bisa terjadi jika review dihapus orang lain di antara GET dan POST),
-            // halaman edit mungkin akan kekurangan info kontekstual "review".
-            // Idealnya, jika reviewOptional kosong di sini, kita redirect ke list dengan error.
+    
             if(reviewOptional.isEmpty()){
                  redirectAttributes.addFlashAttribute("errorMessage", "Review dengan ID " + reviewId + " tidak ditemukan saat mencoba update.");
                  return "redirect:/admin/reviews";
             }
 
-            return "admin/reviews/edit-review"; // Kembali ke form edit review untuk menampilkan error
+            return "admin/reviews/edit-review"; 
         }
     }
 }

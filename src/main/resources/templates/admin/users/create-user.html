@@ -2,44 +2,206 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah User Baru</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        h1 { color: #333; }
-        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;}
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="password"],
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box; /* Untuk padding tidak menambah width */
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue for general buttons/accents */
+            --accent-color: #2ecc71; /* Green for success/add */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --input-border: #ccc;
+            --input-focus-border: var(--secondary-color);
+            --error-bg: #ffebee; /* Light red for error messages */
+            --error-border: #ffcdd2; /* Lighter red border for error messages */
+            --error-text: var(--danger-color);
+            --input-group-addon-bg: #e9ecef; /* Background for icon part in input group */
+            --input-group-addon-border: #ced4da;
         }
-        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }
-        .button-bar { margin-top: 20px; text-align: right; }
-        .button-bar button, .button-bar a {
-            padding: 10px 20px;
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            /* Remove position: relative from here if input-group handles it */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        /* Base input styling for all form controls */
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        /* Input Group for Password (NEW / MODIFIED) */
+        .input-group {
+            display: flex;
+            width: 100%;
+            border: 1px solid var(--input-border); /* Border untuk seluruh group */
+            border-radius: 8px;
+            overflow: hidden; /* Penting untuk border-radius di dalamnya */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-group:focus-within { /* Menggunakan :focus-within untuk border dan shadow pada seluruh group */
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        .input-group .form-control {
+            flex-grow: 1; /* Input mengambil sisa ruang */
+            border: none; /* Hapus border input internal */
+            border-radius: 0; /* Hapus border-radius input internal */
+            padding-right: 0; /* Pastikan tidak ada padding di kanan */
+        }
+        .input-group-text {
+            background-color: var(--input-group-addon-bg); /* Warna background ikon */
+            border: none; /* Hapus border */
+            padding: 0 15px; /* Padding horizontal */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6c757d; /* Warna ikon */
+            font-size: 18px; /* Ukuran ikon */
+            border-left: 1px solid var(--input-group-addon-border); /* Border kiri */
+        }
+        .input-group-text:hover {
+            background-color: #dde0e3; /* Warna hover lebih gelap */
+            color: var(--primary-color);
+        }
+
+        .error-message {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .button-bar {
+            margin-top: 30px;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
             text-decoration: none;
-            border-radius: 4px;
-            margin-left: 10px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .btn-save { background-color: #28a745; color: white; }
-        .btn-save:hover { background-color: #218838; }
-        .btn-cancel { background-color: #6c757d; color: white; display: inline-block; } /* display inline-block untuk <a> */
-        .btn-cancel:hover { background-color: #5a6268; }
+
+        .btn-save {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-save:hover { background-color: #27ae60; transform: translateY(-2px); }
+
+        .btn-cancel {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-cancel:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .button-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+            }
+            /* Adjust input group text padding for smaller screens if needed */
+            .input-group-text {
+                padding: 0 10px; /* Reduce padding on smaller screens */
+                font-size: 16px; /* Adjust font size if necessary */
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Form Tambah User Baru</h1>
 
-        <div th:if="${error}" class="error-message" style="border: 1px solid red; padding: 10px; margin-bottom:15px;">
+        <div th:if="${error}" class="error-message">
             <p th:text="${error}"></p>
         </div>
 
@@ -48,34 +210,51 @@
 
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" id="username" th:field="*{username}" required />
-                </div>
+                <input type="text" id="username" th:field="*{username}" placeholder="Masukkan username" required class="form-control" />
+            </div>
 
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" th:field="*{email}" required />
-                </div>
+                <input type="email" id="email" th:field="*{email}" placeholder="Masukkan alamat email" required class="form-control" />
+            </div>
 
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" th:field="*{password}" required />
+                <div class="input-group"> <input type="password" id="password" th:field="*{password}" placeholder="Masukkan password" required class="form-control" />
+                    <span class="input-group-text" id="togglePasswordContainer"> <i class="fas fa-eye" id="togglePassword"></i>
+                    </span>
                 </div>
+            </div>
 
             <div class="form-group">
                 <label for="roleId">Role:</label>
-                <select id="roleId" th:field="*{roleId}" required>
+                <select id="roleId" th:field="*{roleId}" required class="form-control">
                     <option value="">Pilih Role...</option>
                     <option th:each="roleOpt : ${availableRoles}"
                             th:value="${roleOpt.id}"
                             th:text="${roleOpt.name}">USER</option>
                 </select>
-                </div>
+            </div>
 
             <div class="button-bar">
-                <a th:href="@{/admin/users}" class="btn-cancel">Batal</a>
-                <button type="submit" class="btn-save">Simpan User</button>
+                <a th:href="@{/admin/users}" class="btn btn-cancel">Batal</a>
+                <button type="submit" class="btn btn-save">Simpan User</button>
             </div>
         </form>
     </div>
+
+    <script>
+        const togglePasswordContainer = document.querySelector('#togglePasswordContainer');
+        const passwordInput = document.querySelector('#password');
+        const togglePasswordIcon = document.querySelector('#togglePassword');
+
+        togglePasswordContainer.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            togglePasswordIcon.classList.toggle('fa-eye-slash');
+            togglePasswordIcon.classList.toggle('fa-eye');
+        });
+    </script>
 </body>
 </html>

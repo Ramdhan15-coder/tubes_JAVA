@@ -177,4 +177,17 @@ public class UserServiceImpl implements UserService {
         public Optional<User> findUserByUsername(String username) {
             return userRepository.findByUsername(username); // Menggunakan metode dari UserRepository
         }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<User> searchUsers(String keyword, Integer roleId) {
+            String keywordForQuery = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+            Integer roleIdForQuery = (roleId != null) ? roleId : null;
+
+            if (keywordForQuery == null && roleIdForQuery == null) {
+                return userRepository.findAll(); // Jika tidak ada kriteria, kembalikan semua
+            }
+
+            return userRepository.searchUsers(keywordForQuery, roleIdForQuery);
+        }
 }

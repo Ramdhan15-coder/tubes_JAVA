@@ -1,10 +1,8 @@
 package com.ramdhanr.tubesJAVA.controller;
 
 import com.ramdhanr.tubesJAVA.dto.CheckoutFormDto;
-//import com.ramdhanr.tubesJAVA.dto.ReviewDto;
 import com.ramdhanr.tubesJAVA.model.CartItem;
 import com.ramdhanr.tubesJAVA.model.Order;
-//import com.ramdhanr.tubesJAVA.model.Review;
 import com.ramdhanr.tubesJAVA.model.User;
 import com.ramdhanr.tubesJAVA.service.CartService;
 import com.ramdhanr.tubesJAVA.service.FileStorageService; 
@@ -133,7 +131,7 @@ public class OrderController {
         return "order-confirmation";
     }
 
-    // METODE BARU UNTUK MENANGANI UPLOAD BUKTI PEMBAYARAN
+    // UNTUK MENANGANI UPLOAD BUKTI PEMBAYARAN
     @PostMapping("/{orderId}/upload-proof")
     public String handlePaymentProofUpload(@PathVariable("orderId") Integer orderId,
                                            @RequestParam("paymentProofFile") MultipartFile paymentProofFile,
@@ -159,7 +157,7 @@ public class OrderController {
             String filePath = fileStorageService.storeFile(paymentProofFile, "payment_proofs");
 
             // 2. Update order dengan URL bukti pembayaran dan status baru
-            orderService.savePaymentProof(orderId, filePath, user); // User dikirim untuk validasi kepemilikan order
+            orderService.savePaymentProof(orderId, filePath, user); 
 
             redirectAttributes.addFlashAttribute("successMessage", "Bukti pembayaran berhasil diupload. Pesanan Anda sedang diproses.");
 
@@ -167,7 +165,7 @@ public class OrderController {
             redirectAttributes.addFlashAttribute("errorMessage", "Gagal mengupload bukti pembayaran: " + e.getMessage());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan tidak terduga saat mengupload bukti pembayaran.");
-            // log.error("Error uploading payment proof for order {}: {}", orderId, e.getMessage());
+            
         }
 
         return "redirect:/order/confirmation/" + orderId; // Kembali ke halaman konfirmasi order
@@ -193,7 +191,7 @@ public class OrderController {
 
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Gagal memuat riwayat pesanan: " + e.getMessage());
-            model.addAttribute("orders", Collections.emptyList()); // Kirim list kosong jika error
+            model.addAttribute("orders", Collections.emptyList()); 
         }
         return "order-history"; 
     }

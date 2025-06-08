@@ -31,14 +31,14 @@ public class User implements UserDetails {
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER: role langsung di-load saat User di-load
+    @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    // Implementasi UserDetails dari Spring Security
+   
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // MODIFIKASI DI SINI: Tambahkan prefix "ROLE_"
+        
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName()));
     }
 
@@ -49,27 +49,27 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-    // Sebelumnya: return email;
-    return this.username; // Diubah menjadi mengembalikan field username
+   
+    return this.username; 
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Anggap akun tidak pernah expired
+        return true; 
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Anggap akun tidak pernah terkunci
+        return true; 
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Anggap kredensial tidak pernah expired
+        return true; 
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Anggap akun selalu aktif
+        return true;
     }
 }

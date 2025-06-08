@@ -34,8 +34,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
         try {
             User registeredUser = userService.registerUser(registerDto);
-            // Hindari mengirim password kembali ke klien
-            // Anda bisa membuat UserResponseDto jika perlu mengirim detail user
+           
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully!");
             response.put("userId", registeredUser.getId());
@@ -63,22 +62,19 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Jika menggunakan JWT, token akan di-generate dan dikembalikan di sini.
-            // Untuk sekarang, kita kembalikan pesan sukses dan detail user sederhana.
-            User user = (User) authentication.getPrincipal(); // User kita yg implement UserDetails
+           
+            User user = (User) authentication.getPrincipal(); 
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User logged in successfully!");
             response.put("username", user.getUsername());
-            response.put("email", user.getEmail()); // dari getUsername() di UserDetails yg kita override
+            response.put("email", user.getEmail()); 
             response.put("role", user.getRole().getName());
-            // Jika menggunakan session-based auth (default dengan formLogin),
-            // Spring Security akan handle session cookie.
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // Tangani jika autentikasi gagal (misal: BadCredentialsException)
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed: " + e.getMessage());
         }
     }

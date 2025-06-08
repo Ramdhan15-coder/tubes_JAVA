@@ -2,54 +2,200 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Produk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
-        h2.subtitle { font-size: 1.1em; color: #555; text-align: center; margin-bottom: 20px; font-weight: normal;}
-        .container { max-width: 700px; margin: auto; padding: 25px; border: 1px solid #d1d9e0; border-radius: 8px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #495057; }
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="url"], /* Untuk imageUrl bisa juga type="text" */
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
+        :root {
+            --primary-color: #2c3e50; /* Dark Blue */
+            --secondary-color: #3498db; /* Blue for general buttons/accents */
+            --accent-color: #2ecc71; /* Green for success/add */
+            --warning-color: #f39c12; /* Orange for warnings/edit */
+            --danger-color: #e74c3c; /* Red for danger/delete */
+            --light-bg: #ecf0f1; /* Light grey background */
+            --card-bg: #ffffff; /* White card background */
+            --text-color: #333;
+            --border-color: #ddd;
+            --input-border: #ccc;
+            --input-focus-border: var(--secondary-color);
+            --error-bg: #ffebee; /* Light red for error messages */
+            --error-border: #ffcdd2; /* Lighter red border for error messages */
+            --error-text: var(--danger-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top to allow scroll if content is long */
+            min-height: 100vh;
             box-sizing: border-box;
-            font-size: 1em;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+            margin-top: 20px; /* Jarak dari atas */
+            margin-bottom: 20px;
         }
-        .form-group textarea { min-height: 100px; resize: vertical; }
-        .error-message-global { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 0.95em; }
-        .error-message-field { color: red; font-size: 0.85em; margin-top: 4px; }
-        .button-bar { margin-top: 25px; text-align: right; padding-top: 15px; border-top: 1px solid #e9ecef;}
-        .button-bar button, .button-bar a {
-            padding: 10px 22px;
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        h2.subtitle {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.1em;
+            color: #555;
+            text-align: center;
+            margin-bottom: 30px; /* Lebih banyak jarak */
+            font-weight: 400; /* Normal weight */
+        }
+        h2.subtitle strong {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px; /* Konsisten */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        /* Styling for all form controls */
+        .form-control { /* New class for all inputs, textarea, select */
+            width: 100%;
+            padding: 12px 15px; /* Consistent padding */
+            border: 1px solid var(--input-border);
+            border-radius: 8px; /* Consistent border-radius */
+            box-sizing: border-box;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        .form-group textarea.form-control {
+            min-height: 150px; /* Tinggi minimum textarea lebih besar */
+            resize: vertical;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+
+        .error-message-global { /* Renamed to .alert.alert-danger for consistency */
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            text-align: center;
+        }
+        .error-message-field { /* Specific styling for field-level errors */
+            color: var(--danger-color);
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: block; /* Ensure it takes full width */
+        }
+
+
+        .button-bar {
+            margin-top: 30px;
+            text-align: right;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
             text-decoration: none;
-            border-radius: 5px;
-            margin-left: 10px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 16px;
             font-weight: 500;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .button-bar button:hover, .button-bar a:hover { transform: translateY(-1px); }
-        .btn-update { background-color: #ffc107; color: #212529; }
-        .btn-update:hover { background-color: #e0a800; }
-        .btn-cancel { background-color: #6c757d; color: white; display: inline-block; }
-        .btn-cancel:hover { background-color: #5a6268; }
+
+        .btn-update {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        .btn-update:hover { background-color: #d35400; transform: translateY(-2px); }
+
+        .btn-cancel {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-cancel:hover { background-color: #233140; transform: translateY(-2px); }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            h2.subtitle {
+                font-size: 1em;
+                margin-bottom: 20px;
+            }
+            .button-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+            }
+            .form-control {
+                padding: 10px 12px;
+                font-size: 15px;
+            }
+            .form-group textarea.form-control {
+                min-height: 120px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -66,44 +212,50 @@
 
             <div class="form-group">
                 <label for="name">Nama Produk:</label>
-                <input type="text" id="name" th:field="*{name}" required />
-                </div>
+                <input type="text" id="name" th:field="*{name}" required class="form-control" placeholder="Masukkan nama produk"/>
+                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message-field"></p>
+            </div>
 
             <div class="form-group">
                 <label for="description">Deskripsi:</label>
-                <textarea id="description" th:field="*{description}" rows="4"></textarea>
-                </div>
+                <textarea id="description" th:field="*{description}" rows="4" class="form-control" placeholder="Tulis deskripsi lengkap produk..."></textarea>
+                <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error-message-field"></p>
+            </div>
 
             <div class="form-group">
                 <label for="price">Harga (Rp):</label>
-                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required />
-                </div>
+                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required class="form-control" placeholder="Cth: 150000.00" />
+                <p th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="error-message-field"></p>
+            </div>
 
             <div class="form-group">
                 <label for="stock">Stok:</label>
-                <input type="number" id="stock" th:field="*{stock}" min="0" required />
-                </div>
+                <input type="number" id="stock" th:field="*{stock}" min="0" required class="form-control" placeholder="Jumlah stok produk" />
+                <p th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}" class="error-message-field"></p>
+            </div>
 
             <div class="form-group">
                 <label for="categoryId">Kategori:</label>
-                <select id="categoryId" th:field="*{categoryId}" required>
+                <select id="categoryId" th:field="*{categoryId}" required class="form-control">
                     <option value="">--- Pilih Kategori ---</option>
                     <option th:each="categoryOpt : ${availableCategories}"
                             th:value="${categoryOpt.id}"
                             th:text="${categoryOpt.name}"
                             th:selected="${adminProductUpdateDto.categoryId != null and categoryOpt.id == adminProductUpdateDto.categoryId}">Nama Kategori</option>
                 </select>
-                </div>
+                <p th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="error-message-field"></p>
+            </div>
 
             <div class="form-group">
                 <label for="imageUrl">URL Gambar Produk:</label>
-                <input type="text" id="imageUrl" th:field="*{imageUrl}" placeholder="/images/namafilegambar.jpg" />
-                <small>Contoh: /images/sepatu-keren.jpg (pastikan gambar ada di static/images)</small>
-                </div>
+                <input type="text" id="imageUrl" th:field="*{imageUrl}" class="form-control" placeholder="/images/namafilegambar.jpg" />
+                <small>Contoh: /images/sepatu-keren.jpg (pastikan gambar ada di folder static/images)</small>
+                <p th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="error-message-field"></p>
+            </div>
 
             <div class="button-bar">
-                <a th:href="@{/admin/products}" class="btn-cancel">Batal</a>
-                <button type="submit" class="btn-update">Update Produk</button>
+                <a th:href="@{/admin/products}" class="btn btn-cancel">Batal</a>
+                <button type="submit" class="btn btn-update">Update Produk</button>
             </div>
         </form>
     </div>

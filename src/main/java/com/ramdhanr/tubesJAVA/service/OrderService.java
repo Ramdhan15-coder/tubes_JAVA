@@ -28,6 +28,8 @@ public interface OrderService { // Pastikan tidak ada 'extends UserDetailsServic
     // PERBAIKAN DI SINI: Samakan nama metode dengan implementasi dan pemanggilan di controller
     List<Order> getAllOrdersAdmin();
 
+    List<Order> searchOrdersAdmin(String keyword, String status);
+
     Optional<Order> findOrderByIdAdmin(Integer orderId); // <-- TAMBAHKAN INI
 
     Order updateOrderStatus(Integer orderId, String newStatus); // <-- TAMBAHKAN INI

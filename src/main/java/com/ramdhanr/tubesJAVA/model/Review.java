@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Timestamp; // Pastikan import ini ada
+import java.sql.Timestamp; 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "reviews") // Pastikan nama tabel sesuai dengan yang ada di database kamu
+@Table(name = "reviews") 
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id") // Sesuai nama kolom di DDL gambar dan SQL yang kita buat
+    @Column(name = "review_id") 
     private Integer reviewId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,11 +33,11 @@ public class Review {
     private Byte rating; // TINYINT (1-5)
 
     @Lob
-    @Column(name = "comment", columnDefinition = "TEXT") // Boleh null
+    @Column(name = "comment", columnDefinition = "TEXT") 
     private String comment;
 
-    @CreationTimestamp // Otomatis diisi Hibernate saat entitas pertama kali disimpan
-    @Column(name = "review_date", nullable = false, updatable = false) // Tanggal review diset saat dibuat & tidak diupdate
+    @CreationTimestamp 
+    @Column(name = "review_date", nullable = false, updatable = false) 
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp reviewDate;
 

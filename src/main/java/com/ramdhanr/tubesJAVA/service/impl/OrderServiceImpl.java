@@ -100,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Order> findOrderByIdForUser(Integer orderId, User user) {
-        // Menggunakan metode repository yang sudah JOIN FETCH
+        
         return orderRepository.findByIdAndUserWithItemsAndProducts(orderId, user);
     }
     
@@ -115,14 +115,14 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderToUpdate.setPaymentProofUrl(paymentProofUrl);
-        orderToUpdate.setStatus("WAITING_CONFIRMATION"); // Update status
+        orderToUpdate.setStatus("WAITING_CONFIRMATION"); 
         return orderRepository.save(orderToUpdate);
     }
     
     @Override
     @Transactional(readOnly = true)
     public List<Order> getAllOrdersAdmin() {
-        // Menggunakan metode repository baru yang sudah JOIN FETCH dengan User
+    
         return orderRepository.findAllWithUserOrderByOrderDateAsc();
     }
 
@@ -132,21 +132,19 @@ public Optional<Order> findOrderByIdAdmin(Integer orderId) {
     return orderRepository.findByIdWithItemsAndProductsAdmin(orderId);
 }
 
-// IMPLEMENTASI METODE BARU untuk updateOrderStatus
+// IMPLEMENTASI METODE untuk updateOrderStatus
 @Override
 @Transactional
 public Order updateOrderStatus(Integer orderId, String newStatus) {
     Order orderToUpdate = orderRepository.findById(orderId)
             .orElseThrow(() -> new RuntimeException("Error: Pesanan dengan ID " + orderId + " tidak ditemukan."));
 
-    // (Opsional) Tambahkan validasi untuk alur status, misal tidak bisa dari SHIPPED kembali ke PROCESSING, dll.
-    // Untuk sekarang, kita biarkan admin bisa mengubah ke status apapun.
 
     orderToUpdate.setStatus(newStatus);
     return orderRepository.save(orderToUpdate);
 }
 
-    //IMPLEMENTASI METODE BARU UNTUK DELETE ORDER
+    //IMPLEMENTASI METODEUNTUK DELETE ORDER
     @Override
     @Transactional
     public void deleteOrderByIdAdmin(Integer orderId) {
@@ -160,5 +158,20 @@ public Order updateOrderStatus(Integer orderId, String newStatus) {
         // 'order_items' dan 'payments', maka saat order ini dihapus, semua item dan
         // pembayaran terkait juga akan otomatis terhapus oleh database.
         orderRepository.deleteById(orderId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Order> searchOrdersAdmin(String keyword, String status) {
+        // Bersihkan input agar string kosong dianggap null oleh query
+        String keywordForQuery = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String statusForQuery = (status != null && !status.trim().isEmpty()) ? status.trim() : null;
+
+        // Jika tidak ada kriteria sama sekali, kembalikan semua
+        if (keywordForQuery == null && statusForQuery == null) {
+            return getAllOrdersAdmin();
+        }
+
+        return orderRepository.searchOrders(keywordForQuery, statusForQuery);
     }
 }

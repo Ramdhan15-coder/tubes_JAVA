@@ -41,7 +41,7 @@ public class ShoppingCart {
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp updatedAt;
 
-    // Helper methods (opsional, tapi bisa berguna)
+   
     public void addCartItem(CartItem item) {
         cartItems.add(item);
         item.setShoppingCart(this);
@@ -52,6 +52,5 @@ public class ShoppingCart {
         item.setShoppingCart(null);
     }
 
-    // Mungkin ada method lain seperti getTotalPrice(), dll. yang bisa dihitung dari cartItems
-    // tapi itu bisa juga di service layer.
+   
 }

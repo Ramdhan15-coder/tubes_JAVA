@@ -17,13 +17,15 @@ public interface UserService extends UserDetailsService {
 
     User createUserByAdmin(AdminCreateUserDto createUserDto);
 
-    Optional<User> findUserById(Integer userId); // Sudah ada dari langkah sebelumnya
+    Optional<User> findUserById(Integer userId); 
 
-    User updateUserByAdmin(Integer userId, AdminUpdateUserDto updateUserDto); // <-- TAMBAHKAN METODE INI
+    User updateUserByAdmin(Integer userId, AdminUpdateUserDto updateUserDto); 
 
     void deleteUserById(Integer userId);
     
     Optional<User> findUserByUsername(String username);
+
+    List<User> searchUsers(String keyword, Integer roleId);
 
 
 
