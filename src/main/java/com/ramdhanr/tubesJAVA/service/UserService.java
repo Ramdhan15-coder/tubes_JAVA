@@ -2,6 +2,8 @@ package com.ramdhanr.tubesJAVA.service;
 
 import com.ramdhanr.tubesJAVA.dto.AdminCreateUserDto;
 import com.ramdhanr.tubesJAVA.dto.AdminUpdateUserDto; // <-- IMPORT DTO UPDATE
+import com.ramdhanr.tubesJAVA.dto.PasswordChangeDto;
+import com.ramdhanr.tubesJAVA.dto.ProfileUpdateDto;
 import com.ramdhanr.tubesJAVA.dto.RegisterDto;
 import com.ramdhanr.tubesJAVA.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,7 +29,9 @@ public interface UserService extends UserDetailsService {
 
     List<User> searchUsers(String keyword, Integer roleId);
 
+    User updateUserProfile(String currentUsername, ProfileUpdateDto profileUpdateDto);
 
+    void changeUserPassword(String currentUsername, PasswordChangeDto passwordChangeDto);
 
 
 

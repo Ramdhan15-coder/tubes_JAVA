@@ -2,6 +2,8 @@ package com.ramdhanr.tubesJAVA.service.impl;
 
 import com.ramdhanr.tubesJAVA.dto.AdminCreateUserDto;
 import com.ramdhanr.tubesJAVA.dto.AdminUpdateUserDto; // <-- IMPORT DTO UPDATE
+import com.ramdhanr.tubesJAVA.dto.PasswordChangeDto;
+import com.ramdhanr.tubesJAVA.dto.ProfileUpdateDto;
 import com.ramdhanr.tubesJAVA.dto.RegisterDto;
 import com.ramdhanr.tubesJAVA.model.Role;
 import com.ramdhanr.tubesJAVA.model.User;
@@ -190,4 +192,38 @@ public class UserServiceImpl implements UserService {
 
             return userRepository.searchUsers(keywordForQuery, roleIdForQuery);
         }
+
+        @Override
+    @Transactional
+    public User updateUserProfile(String currentUsername, ProfileUpdateDto profileUpdateDto) {
+        User userToUpdate = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User tidak ditemukan."));
+
+        // Validasi jika email diubah: pastikan tidak dipakai user lain
+        if (!userToUpdate.getEmail().equals(profileUpdateDto.email()) && 
+            userRepository.existsByEmail(profileUpdateDto.email())) {
+            throw new IllegalArgumentException("Error: Email '" + profileUpdateDto.email() + "' sudah digunakan oleh akun lain.");
+        }
+
+        userToUpdate.setEmail(profileUpdateDto.email());
+        return userRepository.save(userToUpdate);
+    }
+
+    @Override
+    @Transactional
+    public void changeUserPassword(String currentUsername, PasswordChangeDto passwordChangeDto) {
+        User user = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User tidak ditemukan."));
+
+        if (!passwordEncoder.matches(passwordChangeDto.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Password saat ini salah.");
+        }
+
+        if (!passwordChangeDto.newPassword().equals(passwordChangeDto.confirmNewPassword())) {
+            throw new IllegalArgumentException("Password baru dan konfirmasi password tidak cocok.");
+        }
+
+        user.setPassword(passwordEncoder.encode(passwordChangeDto.newPassword()));
+        userRepository.save(user);
+    }
 }

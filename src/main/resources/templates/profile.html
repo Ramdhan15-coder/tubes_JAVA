@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'Profil Saya'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Definisi variabel CSS untuk konsistensi */
+        :root {
+            --primary-color: #007bff; /* Biru utama Bootstrap */
+            --secondary-color: #6c757d; /* Warna abu-abu teks */
+            --accent-color: #28a745; /* Hijau untuk tombol sukses/aksi */
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40; /* Warna gelap navbar */
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Shadow yang sama untuk form-section */
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif; /* Menggunakan Open Sans untuk body */
+            background-color: var(--light-bg);
+            padding-top: 70px; /* Tinggi navbar fixed + sedikit padding */
+        }
+
+        /* Styling Navbar agar konsisten (sama persis dengan dashboard-user) */
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Tambahkan shadow pada navbar */
+        }
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif; /* Poppins untuk brand agar lebih menonjol */
+            font-weight: 700;
+            color: #fff !important; /* Pastikan warna brand tetap putih */
+        }
+        .nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            /* Pastikan warna link default sesuai dengan navbar-dark Bootstrap */
+            color: rgba(255,255,255,.55); 
+        }
+        .nav-link:hover {
+            color: rgba(255,255,255,.75); /* Warna hover Bootstrap navbar-dark */
+        }
+        .nav-link.active {
+            color: #fff !important; /* Warna aktif Bootstrap navbar-dark */
+        }
+        .navbar-text strong {
+            color: #fff; /* Pastikan teks username tetap putih */
+        }
+        /* Akhir Styling Navbar */
+
+        .profile-container { 
+            max-width: 900px; 
+            margin: 30px auto; 
+            padding: 0 15px; /* Padding horizontal untuk responsif */
+        }
+        .form-section { 
+            background-color: #ffffff; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: var(--card-shadow); /* Gunakan variabel shadow */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .form-section:hover {
+            transform: translateY(-5px); /* Efek sedikit naik saat hover */
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12); /* Bayangan sedikit lebih besar */
+        }
+        .form-section h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .form-section hr {
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Biru Bootstrap primary */
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        .btn-warning {
+            background-color: #ffc107; /* Kuning Bootstrap default */
+            border-color: #ffc107;
+            color: #333; /* Warna teks gelap agar terbaca di kuning */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        /* Styling Flash Messages (Alerts) */
+        .alert-container { /* Untuk menampung flash messages agar tidak tertutup navbar */
+            position: sticky;
+            top: 56px; /* Tinggi navbar */
+            z-index: 1050; /* Di atas navbar */
+            width: 100%;
+        }
+        .alert {
+            margin-bottom: 0;
+            border-radius: 0;
+            font-weight: 500;
+            padding: 1rem 1.5rem; /* Padding alert lebih nyaman */
+        }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/dashboard-user}">Toko Sepatu Keren</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <span class="navbar-text me-3">Selamat datang, <strong sec:authentication="principal.username">Pengguna</strong>!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cart}"><i class="fas fa-shopping-cart me-1"></i> Keranjang
+                            <span th:if="${cartItemCount != null && cartItemCount > 0}" class="badge bg-danger rounded-pill ms-1" th:text="${cartItemCount}">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/order/history}"><i class="fas fa-history me-1"></i> Riwayat Pesanan</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link active" th:href="@{/profile}"><i class="fas fa-user-circle me-1"></i> Profil Saya</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                            <button class="btn btn-link nav-link" type="submit" style="padding: .5rem 1rem; color: rgba(255,255,255,.55);"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+                        </form>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="alert-container">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <div class="container profile-container">
+        <h1 class="text-center mb-4 display-5"><i class="fas fa-user-circle"></i> Profil Saya</h1>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="form-section">
+                    <h4>Edit Informasi Profil</h4>
+                    <hr>
+                    <form th:action="@{/profile/update}" th:object="${profileUpdateDto}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" th:field="*{username}" class="form-control" readonly>
+                            <small class="form-text text-muted">Username tidak dapat diubah.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" th:field="*{email}" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profil</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-section">
+                    <h4>Ganti Password</h4>
+                    <hr>
+                    <form th:action="@{/profile/change-password}" th:object="${passwordChangeDto}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Password Saat Ini</label>
+                            <input type="password" id="currentPassword" th:field="*{currentPassword}" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Password Baru</label>
+                            <input type="password" id="newPassword" th:field="*{newPassword}" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmNewPassword" class="form-label">Konfirmasi Password Baru</label>
+                            <input type="password" id="confirmNewPassword" th:field="*{confirmNewPassword}" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Ganti Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
